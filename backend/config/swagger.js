@@ -5,7 +5,7 @@ const swaggerDocument = {
   info: {
     title: 'WorkStock - Empresas API',
     version: '0.1.0',
-    description: 'Documentação oficial do ecossistema backend para o WorkStock - Empresas. Contém os módulos de autenticação e o CRUD de solicitações de serviço.',
+    description: 'Documentação oficial do ecossistema backend para o WorkStock - Empresas. Contém os módulos de autenticação, o CRUD de usuários e o CRUD de solicitações de serviço.',
     contact: {
       name: 'Equipe de Desenvolvimento WorkStock'
     }
@@ -50,9 +50,9 @@ const swaggerDocument = {
   paths: {
     '/auth/register': {
       post: {
-        tags: ['Autenticação'],
+        tags: ['Usuários e Autenticação'],
         summary: 'Cadastrar uma nova conta de usuário [RF002]',
-        description: 'Permite o cadastro inicial de um usuário cliente ou empresa fornecendo nome, e-mail único e senha.',
+        description: 'Permite o cadastro inicial fornecendo nome, e-mail único e senha.',
         requestBody: {
           required: true,
           content: {
@@ -90,9 +90,9 @@ const swaggerDocument = {
     },
     '/auth/login': {
       post: {
-        tags: ['Autenticação'],
+        tags: ['Usuários e Autenticação'],
         summary: 'Efetuar login no sistema [RF001]',
-        description: 'Inicia a sessão na aplicação validando as credenciais (e-mail e senha).',
+        description: 'Inicia a sessão na aplicação validando as credenciais informadas.',
         requestBody: {
           required: true,
           content: {
@@ -124,6 +124,110 @@ const swaggerDocument = {
             }
           },
           401: { description: 'CNPJ (CPF) ou senha inválidos. Tente novamente.' }
+        }
+      }
+    },
+    '/users': {
+      get: {
+        tags: ['Usuários e Autenticação'],
+        summary: 'Listar todos os usuários cadastrados',
+        description: 'Retorna a lista completa de usuários do sistema, ocultando informações sensíveis como hashes de senha.',
+        responses: {
+          200: {
+            description: 'Lista de usuários retornada com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/User' }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/users/{id}': {
+      get: {
+        tags: ['Usuários e Autenticação'],
+        summary: 'Buscar perfil do usuário por ID',
+        description: 'Retorna os detalhes públicos do perfil de um usuário específico do ecossistema.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+        ],
+        responses: {
+          200: {
+            description: 'Dados do perfil retornados com sucesso.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' }
+              }
+            }
+          },
+          404: { description: 'Usuário não encontrado.' }
+        }
+      },
+      put: {
+        tags: ['Usuários e Autenticação'],
+        summary: 'Editar dados de controle do perfil [RF004]',
+        description: 'Permite que o usuário atualize suas informações cadastrais, como nome e e-mail.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Lemos Reformas Atualizado' },
+                  email: { type: 'string', example: 'novo_email@workstock.com' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Perfil atualizado com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Dados de perfil atualizados com sucesso!' },
+                    user: { $ref: '#/components/schemas/User' }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: 'E-mail já em uso ou dados inválidos.' }
+        }
+      },
+      delete: {
+        tags: ['Usuários e Autenticação'],
+        summary: 'Excluir uma conta de usuário',
+        description: 'Remove definitivamente o registro do usuário do banco de dados.',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+        ],
+        responses: {
+          200: {
+            description: 'Conta excluída com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Conta de usuário excluída com sucesso do sistema.' }
+                  }
+                }
+              }
+            }
+          },
+          404: { description: 'Usuário não encontrado.' }
         }
       }
     },
@@ -243,7 +347,7 @@ const swaggerDocument = {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Solicitação de serviço atualizada com sucesso!' },
+                    message: { type: 'string', example: 'Solicitação de serviço alta com sucesso!' },
                     data: { $ref: '#/components/schemas/ServiceRequest' }
                   }
                 }
