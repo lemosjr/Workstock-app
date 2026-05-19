@@ -1,19 +1,19 @@
-const userService = require('../service/service');
+const userService = require('../service/UserService');
 
-class UserController {
+class AuthController {
     // Handler para o Cadastro de Conta [RF002]
     async register(req, res) {
         try {
             const { name, email, password } = req.body;
 
-            // Validação simples de presença de campos obrigatórios [RF002]
+            // Validação de presença dos campos obrigatórios conforme o requisito [RF002]
             if (!name || !email || !password) {
                 return res.status(400).json({ error: 'Preencha todos os campos obrigatórios (nome, email e senha).' });
             }
 
             const newUser = await userService.registerAccount({ name, email, passwordHash: password });
             
-            // Retorna o status 201 (Created) com os dados do usuário (omitindo a senha por segurança)
+            // Retorna o status 201 (Created) de acordo com o padrão RESTful [NF022]
             return res.status(201).json({
                 message: 'Conta vinculada ao sistema com sucesso!',
                 user: {
@@ -24,7 +24,7 @@ class UserController {
                 }
             });
         } catch (error) {
-            // Trata o erro disparado pela regra de negócio (ex: email duplicado)
+            // Retorna o erro capturado pela regra de negócio (ex: email já cadastrado)
             return res.status(400).json({ error: error.message });
         }
     }
@@ -40,6 +40,7 @@ class UserController {
 
             const user = await userService.authenticateLogin(email, password);
 
+            // Retorna 200 OK com os dados do usuário autenticado [RF001, NF022]
             return res.status(200).json({
                 message: 'Login efetuado com sucesso!',
                 user: {
@@ -50,10 +51,10 @@ class UserController {
                 }
             });
         } catch (error) {
-            // Exceção de credenciais inválidas descrita no caso de uso [fluxo A01]
+            // Captura a exceção de credenciais inválidas [Fluxo Alternativo A01 do Caso de Uso]
             return res.status(401).json({ error: error.message });
         }
     }
 }
 
-module.exports = new UserController();
+module.exports = new AuthController();
