@@ -1,30 +1,41 @@
 const { User } = require('../model/index');
+const logger = require('../config/logger');
 
 class UserRepository {
-    // C - CREATE: Usado no cadastro [RF002]
+    // C - CREATE: Insere um novo usuário na tabela 'usuario'
     async create(userData) {
-        return await User.create(userData);
+        try {
+            return await User.create(userData);
+        } catch (error) {
+            logger.error(`Erro ao criar registro no banco (Repository): ${error.message}`);
+            throw error;
+        }
     }
 
-    // R - READ: Busca por e-mail [RF001]
+    // R - READ: Localiza o usuário através do e-mail exclusivo (Usado no Login)
     async findByEmail(email) {
         return await User.findOne({ where: { email } });
     }
 
-    // R - READ: Busca por ID único (UUID)
+    // R - READ: Localiza o usuário pelo CPF ou CNPJ único
+    async findByCpfCnpj(cpf_cnpj) {
+        return await User.findOne({ where: { cpf_cnpj } });
+    }
+
+    // R - READ: Busca o usuário pela chave primária (ID Integer)
     async findById(id) {
         return await User.findByPk(id);
     }
 
-    // R - READ: Lista todos os usuários cadastrados (Para o painel administrativo)
+    // R - READ: Retorna todos os registros da tabela 'usuario' para painéis
     async findAll() {
         return await User.findAll({
-            attributes: { exclude: ['passwordHash'] }, // Oculta o hash por segurança nativa
-            order: [['name', 'ASC']]
+            attributes: { exclude: ['senha_hash'] }, // Nunca vaza a senha hash pelas requisições
+            order: [['nome_razao', 'ASC']]
         });
     }
 
-    // U - UPDATE: Atualiza dados do perfil (Nome, e-mail, etc)
+    // U - UPDATE: Atualiza os dados cadastrais (como foto_perfil, telefone)
     async update(id, updateData) {
         const user = await this.findById(id);
         if (!user) return null;
@@ -32,7 +43,7 @@ class UserRepository {
         return await user.update(updateData);
     }
 
-    // D - DELETE: Remove a conta do usuário do sistema
+    // D - DELETE: Remove fisicamente o usuário do banco de dados
     async delete(id) {
         const user = await this.findById(id);
         if (!user) return false;

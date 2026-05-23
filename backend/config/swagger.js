@@ -4,66 +4,170 @@ const swaggerDocument = {
   openapi: '3.0.0',
   info: {
     title: 'WorkStock - Empresas API',
-    version: '0.1.0',
-    description: 'Documentação oficial do ecossistema backend para o WorkStock - Empresas. Contém os módulos de autenticação, o CRUD de usuários e o CRUD de solicitações de serviço.',
+    version: '1.0.0',
+    description: `
+      Documentação oficial do ecossistema backend para o WorkStock - Empresas.
+      
+      ## Funcionalidades Implementadas:
+      - ✅ Autenticação JWT (Login/Registro)
+      - ✅ CRUD de Usuários com controle de permissões
+      - ✅ CRUD de Solicitações de Serviço
+      - ✅ Gestão de Perfil Empresarial (avaliações, descrição)
+      - ✅ Histórico e Timeline de Serviços
+      - ✅ Logs de mudanças de status automáticos
+      
+      ## Níveis de Acesso:
+      - **PROPRIETARIO**: Pode criar e gerenciar seus próprios serviços
+      - **EMPRESA**: Pode criar serviços + tem perfil empresarial estendido
+      - **ADMIN**: Acesso total ao sistema
+    `,
     contact: {
-      name: 'Equipe de Desenvolvimento WorkStock'
+      name: 'Equipe de Desenvolvimento WorkStock',
+      email: 'dev@workstock.com'
+    },
+    license: {
+      name: 'MIT',
+      url: 'https://opensource.org/licenses/MIT'
     }
   },
   servers: [
     {
       url: 'http://localhost:3000/api',
       description: 'Servidor de Desenvolvimento Local'
+    },
+    {
+      url: 'https://workstock-api.herokuapp.com/api',
+      description: 'Servidor de Produção'
     }
   ],
   components: {
+    securitySchemes: {
+      BearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Insira o token JWT gerado no login. Exemplo: "eyJhbGciOi..."'
+      }
+    },
     schemas: {
+      // Schemas existentes
       User: {
         type: 'object',
         properties: {
-          id: { type: 'string', format: 'uuid', example: 'd3b07384-d113-4956-a5e1-211d1e1f1a11' },
-          name: { type: 'string', example: 'Lemos Reformas LTDA' },
+          id: { type: 'integer', example: 1 },
+          nome_razao: { type: 'string', example: 'Lemos Reformas LTDA' },
           email: { type: 'string', example: 'lemos@workstock.com' },
-          role: { type: 'string', example: 'company' },
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' }
+          tipo_usuario: { type: 'string', enum: ['PROPRIETARIO', 'EMPRESA', 'ADMIN'], example: 'EMPRESA' }
         }
       },
       ServiceRequest: {
         type: 'object',
         properties: {
-          id: { type: 'string', format: 'uuid', example: 'c7a02194-c892-4112-b2e1-998d7e6f5a44' },
-          clientName: { type: 'string', example: 'Ana Souza' },
-          category: { type: 'string', example: 'Pintura' },
-          propertyType: { type: 'string', example: 'Apartamento' },
-          description: { type: 'string', example: 'Pintura completa de sala de estar de 30m² com tinta fosca.' },
-          locationApprox: { type: 'string', example: 'Aldeota, Fortaleza' },
-          urgencyDeadline: { type: 'string', example: 'Urgente' },
-          estimatedBudget: { type: 'number', example: 1500.00 },
-          status: { type: 'string', example: 'open' },
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' }
+          id: { type: 'integer', example: 1 },
+          id_usuario: { type: 'integer', example: 1 },
+          categoria: { type: 'string', example: 'Pintura' },
+          tipo_imovel: { type: 'string', example: 'Apartamento' },
+          endereco: { type: 'string', example: 'Aldeota, Fortaleza' },
+          coordenadas: { type: 'string', example: '-3.7327,-38.5031' },
+          prazo_urgencia: { type: 'string', example: 'Até 15 dias' },
+          faixa_preco: { type: 'string', example: 'R$ 1.500 - R$ 2.500' },
+          status_solicitacao: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'], example: 'ABERTO' },
+          foto: { type: 'string', example: 'https://link_da_imagem.jpg' },
+          data_criacao: { type: 'string', format: 'date-time' }
+        }
+      },
+      
+      // NOVOS SCHEMAS
+      Empresa: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          id_usuario: { type: 'integer', example: 5 },
+          descricao: { type: 'string', example: 'Empresa especializada em reformas residenciais e comerciais com mais de 10 anos de mercado.' },
+          avaliacao_media: { type: 'number', format: 'float', minimum: 0, maximum: 5, example: 4.5 }
+        }
+      },
+      Historico: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          id_service: { type: 'integer', example: 10 },
+          status_anterior: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'], example: 'ABERTO' },
+          status_novo: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'], example: 'EM_ANDAMENTO' },
+          comentario: { type: 'string', example: 'Status alterado durante a execução do serviço' },
+          observacao: { type: 'string', example: 'Cliente solicitou alteração na cor da pintura' },
+          data_hora: { type: 'string', format: 'date-time' }
+        }
+      },
+      Timeline: {
+        type: 'object',
+        properties: {
+          servico: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              categoria: { type: 'string' },
+              status_atual: { type: 'string' },
+              data_criacao: { type: 'string', format: 'date-time' }
+            }
+          },
+          timeline: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                tipo: { type: 'string', enum: ['MUDANÇA_STATUS', 'OBSERVAÇÃO'] },
+                de: { type: 'string' },
+                para: { type: 'string' },
+                comentario: { type: 'string' },
+                observacao: { type: 'string' },
+                data: { type: 'string', format: 'date-time' }
+              }
+            }
+          }
+        }
+      },
+      Error: {
+        type: 'object',
+        properties: {
+          error: { type: 'string', example: 'Mensagem de erro detalhada' }
+        }
+      },
+      ValidationError: {
+        type: 'object',
+        properties: {
+          errors: {
+            type: 'array',
+            items: { type: 'string' },
+            example: ['O campo email é obrigatório', 'A senha deve conter no mínimo 6 caracteres']
+          }
         }
       }
     }
   },
   paths: {
+    // ========================================
+    // ROTAS DE AUTENTICAÇÃO E USUÁRIOS
+    // ========================================
     '/auth/register': {
       post: {
-        tags: ['Usuários e Autenticação'],
+        tags: ['Autenticação e Usuários'],
         summary: 'Cadastrar uma nova conta de usuário [RF002]',
-        description: 'Permite o cadastro inicial fornecendo nome, e-mail único e senha.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['name', 'email', 'password'],
+                required: ['nome_razao', 'email', 'cpf_cnpj', 'senha', 'tipo_usuario'],
                 properties: {
-                  name: { type: 'string', example: 'Lemos Reformas' },
+                  nome_razao: { type: 'string', example: 'Lemos Reformas' },
                   email: { type: 'string', example: 'lemos@workstock.com' },
-                  password: { type: 'string', example: 'senhaSegura123' }
+                  cpf_cnpj: { type: 'string', example: '12345678000199' },
+                  senha: { type: 'string', example: 'senhaSegura123' },
+                  telefone: { type: 'string', example: '85999999999' },
+                  foto_perfil: { type: 'string', example: 'https://foto.com/perfil.jpg' },
+                  tipo_usuario: { type: 'string', enum: ['PROPRIETARIO', 'EMPRESA', 'ADMIN'], example: 'EMPRESA' }
                 }
               }
             }
@@ -71,7 +175,7 @@ const swaggerDocument = {
         },
         responses: {
           201: {
-            description: 'Conta vinculada ao sistema com sucesso.',
+            description: 'Conta criada com sucesso.',
             content: {
               'application/json': {
                 schema: {
@@ -84,25 +188,24 @@ const swaggerDocument = {
               }
             }
           },
-          400: { description: 'Dados inválidos ou e-mail já cadastrado.' }
+          400: { description: 'Dados inválidos ou cadastros duplicados.', content: { 'application/json': { schema: { $ref: '#/components/schemas/ValidationError' } } } }
         }
       }
     },
     '/auth/login': {
       post: {
-        tags: ['Usuários e Autenticação'],
+        tags: ['Autenticação e Usuários'],
         summary: 'Efetuar login no sistema [RF001]',
-        description: 'Inicia a sessão na aplicação validando as credenciais informadas.',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['email', 'password'],
+                required: ['email', 'senha'],
                 properties: {
                   email: { type: 'string', example: 'lemos@workstock.com' },
-                  password: { type: 'string', example: 'senhaSegura123' }
+                  senha: { type: 'string', example: 'senhaSegura123' }
                 }
               }
             }
@@ -117,24 +220,25 @@ const swaggerDocument = {
                   type: 'object',
                   properties: {
                     message: { type: 'string', example: 'Login efetuado com sucesso!' },
-                    user: { $ref: '#/components/schemas/User' }
+                    user: { $ref: '#/components/schemas/User' },
+                    token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
                   }
                 }
               }
             }
           },
-          401: { description: 'CNPJ (CPF) ou senha inválidos. Tente novamente.' }
+          401: { description: 'Credenciais inválidas.' }
         }
       }
     },
     '/users': {
       get: {
-        tags: ['Usuários e Autenticação'],
-        summary: 'Listar todos os usuários cadastrados',
-        description: 'Retorna a lista completa de usuários do sistema, ocultando informações sensíveis como hashes de senha.',
+        tags: ['Autenticação e Usuários'],
+        summary: 'Listar todos os usuários (Apenas ADMIN)',
+        security: [{ BearerAuth: [] }],
         responses: {
           200: {
-            description: 'Lista de usuários retornada com sucesso.',
+            description: 'Lista de usuários retornada.',
             content: {
               'application/json': {
                 schema: {
@@ -143,21 +247,23 @@ const swaggerDocument = {
                 }
               }
             }
-          }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Apenas administradores.' }
         }
       }
     },
     '/users/{id}': {
       get: {
-        tags: ['Usuários e Autenticação'],
-        summary: 'Buscar perfil do usuário por ID',
-        description: 'Retorna os detalhes públicos do perfil de um usuário específico do ecossistema.',
+        tags: ['Autenticação e Usuários'],
+        summary: 'Buscar usuário por ID',
+        security: [{ BearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do usuário' }
         ],
         responses: {
           200: {
-            description: 'Dados do perfil retornados com sucesso.',
+            description: 'Usuário encontrado.',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/User' }
@@ -168,11 +274,11 @@ const swaggerDocument = {
         }
       },
       put: {
-        tags: ['Usuários e Autenticação'],
-        summary: 'Editar dados de controle do perfil [RF004]',
-        description: 'Permite que o usuário atualize suas informações cadastrais, como nome e e-mail.',
+        tags: ['Autenticação e Usuários'],
+        summary: 'Atualizar dados do perfil [RF004] (Apenas próprio usuário ou ADMIN)',
+        security: [{ BearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do usuário' }
         ],
         requestBody: {
           required: true,
@@ -181,8 +287,11 @@ const swaggerDocument = {
               schema: {
                 type: 'object',
                 properties: {
-                  name: { type: 'string', example: 'Lemos Reformas Atualizado' },
-                  email: { type: 'string', example: 'novo_email@workstock.com' }
+                  nome_razao: { type: 'string', example: 'Nova Razão Social' },
+                  email: { type: 'string', example: 'novoemail@email.com' },
+                  senha: { type: 'string', example: 'novaSenha123' },
+                  telefone: { type: 'string', example: '85988888888' },
+                  foto_perfil: { type: 'string', example: 'https://nova-foto.com/perfil.jpg' }
                 }
               }
             }
@@ -196,22 +305,22 @@ const swaggerDocument = {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Dados de perfil atualizados com sucesso!' },
+                    message: { type: 'string' },
                     user: { $ref: '#/components/schemas/User' }
                   }
                 }
               }
             }
           },
-          400: { description: 'E-mail já em uso ou dados inválidos.' }
+          403: { description: 'Acesso negado. Você só pode modificar sua própria conta.' }
         }
       },
       delete: {
-        tags: ['Usuários e Autenticação'],
-        summary: 'Excluir uma conta de usuário',
-        description: 'Remove definitivamente o registro do usuário do banco de dados.',
+        tags: ['Autenticação e Usuários'],
+        summary: 'Excluir conta de usuário (Apenas próprio usuário ou ADMIN)',
+        security: [{ BearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único do usuário' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do usuário' }
         ],
         responses: {
           200: {
@@ -227,30 +336,34 @@ const swaggerDocument = {
               }
             }
           },
-          404: { description: 'Usuário não encontrado.' }
+          403: { description: 'Acesso negado. Você só pode excluir sua própria conta.' }
         }
       }
     },
+
+    // ========================================
+    // ROTAS DE SERVIÇOS
+    // ========================================
     '/services': {
       post: {
         tags: ['Solicitações de Serviço'],
         summary: 'Criar uma nova solicitação de serviço',
-        description: 'Abre um novo pedido de reforma vindo do ecossistema de proprietários.',
+        security: [{ BearerAuth: [] }],
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['clientName', 'category', 'propertyType', 'description', 'locationApprox', 'urgencyDeadline', 'estimatedBudget'],
+                required: ['categoria', 'tipo_imovel', 'endereco', 'prazo_urgencia', 'faixa_preco'],
                 properties: {
-                  clientName: { type: 'string', example: 'Ana Souza' },
-                  category: { type: 'string', example: 'Pintura' },
-                  propertyType: { type: 'string', example: 'Apartamento' },
-                  description: { type: 'string', example: 'Pintura completa de sala de estar de 30m² com tinta fosca.' },
-                  locationApprox: { type: 'string', example: 'Aldeota, Fortaleza' },
-                  urgencyDeadline: { type: 'string', example: 'Urgente' },
-                  estimatedBudget: { type: 'number', example: 1500.00 }
+                  categoria: { type: 'string', example: 'Pintura' },
+                  tipo_imovel: { type: 'string', example: 'Apartamento' },
+                  endereco: { type: 'string', example: 'Aldeota, Fortaleza' },
+                  coordenadas: { type: 'string', example: '-3.7327,-38.5031' },
+                  prazo_urgencia: { type: 'string', example: 'Urgente' },
+                  faixa_preco: { type: 'string', example: 'R$ 1.000 - R$ 2.000' },
+                  foto: { type: 'string', example: 'https://foto-servico.com/imagem.jpg' }
                 }
               }
             }
@@ -264,28 +377,29 @@ const swaggerDocument = {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Solicitação de serviço criada com sucesso!' },
+                    message: { type: 'string', example: 'Solicitação de serviço aberta com sucesso!' },
                     data: { $ref: '#/components/schemas/ServiceRequest' }
                   }
                 }
               }
             }
           },
-          400: { description: 'Erro de validação nos campos informados.' }
+          401: { description: 'Token não fornecido ou inválido.' }
         }
       },
       get: {
         tags: ['Solicitações de Serviço'],
         summary: 'Listar ou filtrar solicitações de serviço [RF013, RF014]',
-        description: 'Retorna todas as solicitações abertas ou filtra por parâmetros específicos informados na query URL.',
         parameters: [
-          { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Filtrar por categoria (ex: Pintura)' },
-          { name: 'propertyType', in: 'query', schema: { type: 'string' }, description: 'Filtrar por tipo de imóvel (ex: Casa)' },
-          { name: 'status', in: 'query', schema: { type: 'string' }, description: 'Filtrar por estado (open, in_progress, completed)' }
+          { name: 'category', in: 'query', schema: { type: 'string' }, description: 'Filtrar por categoria' },
+          { name: 'tipo_imovel', in: 'query', schema: { type: 'string' }, description: 'Filtrar por tipo de imóvel' },
+          { name: 'status', in: 'query', schema: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'] }, description: 'Filtrar por status' },
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 }, description: 'Número da página' },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 }, description: 'Itens por página' }
         ],
         responses: {
           200: {
-            description: 'Lista de solicitações retornada com sucesso.',
+            description: 'Lista de solicitações retornada.',
             content: {
               'application/json': {
                 schema: {
@@ -302,28 +416,27 @@ const swaggerDocument = {
       get: {
         tags: ['Solicitações de Serviço'],
         summary: 'Buscar detalhes de uma solicitação por ID [RF013]',
-        description: 'Retorna as informações completas de uma única oportunidade de serviço mapeada no banco.',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único da solicitação' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID numérico do serviço' }
         ],
         responses: {
           200: {
-            description: 'Detalhes da solicitação retornados com sucesso.',
+            description: 'Detalhes retornados.',
             content: {
               'application/json': {
                 schema: { $ref: '#/components/schemas/ServiceRequest' }
               }
             }
           },
-          404: { description: 'Solicitação de serviço não encontrada.' }
+          404: { description: 'Serviço não encontrado.' }
         }
       },
       put: {
         tags: ['Solicitações de Serviço'],
-        summary: 'Atualizar dados ou status de um serviço [RF017]',
-        description: 'Modifica informações estruturais da reforma ou altera o estado do serviço (ex: para "in_progress" ou "completed").',
+        summary: 'Atualizar dados ou status de um serviço [RF017] (Apenas dono ou ADMIN)',
+        security: [{ BearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único da solicitação' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID numérico do serviço' }
         ],
         requestBody: {
           required: true,
@@ -332,8 +445,12 @@ const swaggerDocument = {
               schema: {
                 type: 'object',
                 properties: {
-                  status: { type: 'string', example: 'in_progress' },
-                  description: { type: 'string', example: 'Descrição técnica atualizada.' }
+                  status_solicitacao: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'], example: 'EM_ANDAMENTO' },
+                  categoria: { type: 'string', example: 'Pintura Residencial' },
+                  tipo_imovel: { type: 'string', example: 'Casa' },
+                  endereco: { type: 'string', example: 'Novo endereço' },
+                  prazo_urgencia: { type: 'string', example: 'Normal' },
+                  faixa_preco: { type: 'string', example: 'R$ 2.000 - R$ 3.000' }
                 }
               }
             }
@@ -341,32 +458,32 @@ const swaggerDocument = {
         },
         responses: {
           200: {
-            description: 'Solicitação atualizada com sucesso.',
+            description: 'Serviço atualizado com sucesso.',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Solicitação de serviço alta com sucesso!' },
+                    message: { type: 'string', example: 'Solicitação de serviço atualizada com sucesso!' },
                     data: { $ref: '#/components/schemas/ServiceRequest' }
                   }
                 }
               }
             }
           },
-          400: { description: 'Status inválido ou erro na requisição.' }
+          403: { description: 'Acesso negado (você não é o dono ou admin).' }
         }
       },
       delete: {
         tags: ['Solicitações de Serviço'],
-        summary: 'Remover uma solicitação por ID',
-        description: 'Exclui definitivamente uma solicitação de serviço do banco de dados.',
+        summary: 'Remover uma solicitação por ID (Apenas dono ou ADMIN)',
+        security: [{ BearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' }, description: 'ID único da solicitação' }
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID numérico do serviço' }
         ],
         responses: {
           200: {
-            description: 'Solicitação excluída com sucesso do sistema.',
+            description: 'Removido com sucesso.',
             content: {
               'application/json': {
                 schema: {
@@ -378,7 +495,309 @@ const swaggerDocument = {
               }
             }
           },
-          404: { description: 'Solicitação não encontrada para exclusão.' }
+          403: { description: 'Acesso negado.' }
+        }
+      }
+    },
+
+    // ========================================
+    // NOVAS ROTAS - EMPRESA
+    // ========================================
+    '/empresas': {
+      get: {
+        tags: ['Perfil Empresarial'],
+        summary: 'Listar todas as empresas cadastradas',
+        responses: {
+          200: {
+            description: 'Lista de empresas retornada com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Empresa' }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/empresas/meu-perfil': {
+      get: {
+        tags: ['Perfil Empresarial'],
+        summary: 'Buscar meu próprio perfil empresarial',
+        security: [{ BearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Perfil empresarial encontrado.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Empresa' }
+              }
+            }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Apenas usuários do tipo EMPRESA.' },
+          404: { description: 'Perfil empresarial não encontrado.' }
+        }
+      }
+    },
+    '/empresas/perfil': {
+      post: {
+        tags: ['Perfil Empresarial'],
+        summary: 'Criar ou atualizar meu perfil empresarial',
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  descricao: { type: 'string', minLength: 10, maxLength: 500, example: 'Empresa especializada em reformas residenciais com mais de 10 anos de mercado.' },
+                  avaliacao_media: { type: 'number', minimum: 0, maximum: 5, example: 4.5 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Perfil salvo com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Perfil empresarial salvo com sucesso!' },
+                    data: { $ref: '#/components/schemas/Empresa' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Apenas usuários do tipo EMPRESA.' }
+        }
+      }
+    },
+    '/empresas/usuario/{usuarioId}': {
+      get: {
+        tags: ['Perfil Empresarial'],
+        summary: 'Buscar perfil empresarial por ID do usuário',
+        parameters: [
+          { name: 'usuarioId', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do usuário dono da empresa' }
+        ],
+        responses: {
+          200: {
+            description: 'Perfil empresarial encontrado.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Empresa' }
+              }
+            }
+          },
+          404: { description: 'Perfil empresarial não encontrado.' }
+        }
+      }
+    },
+    '/empresas/{usuarioId}/avaliacao': {
+      put: {
+        tags: ['Perfil Empresarial'],
+        summary: 'Atualizar avaliação média da empresa',
+        parameters: [
+          { name: 'usuarioId', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do usuário dono da empresa' }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['avaliacao'],
+                properties: {
+                  avaliacao: { type: 'number', minimum: 0, maximum: 5, example: 4.5 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Avaliação atualizada com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Avaliação atualizada com sucesso!' },
+                    avaliacao_media: { type: 'number', example: 4.5 }
+                  }
+                }
+              }
+            }
+          },
+          404: { description: 'Empresa não encontrada.' }
+        }
+      }
+    },
+
+    // ========================================
+    // NOVAS ROTAS - HISTÓRICO
+    // ========================================
+    '/services/{id}/historico': {
+      get: {
+        tags: ['Histórico de Serviços'],
+        summary: 'Buscar histórico completo de um serviço',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do serviço' }
+        ],
+        responses: {
+          200: {
+            description: 'Histórico retornado com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    service_id: { type: 'integer' },
+                    total_registros: { type: 'integer' },
+                    historico: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Historico' }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          404: { description: 'Serviço não encontrado.' }
+        }
+      }
+    },
+    '/services/{id}/timeline': {
+      get: {
+        tags: ['Histórico de Serviços'],
+        summary: 'Buscar timeline completa de um serviço (inclui mudanças de status e observações)',
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do serviço' }
+        ],
+        responses: {
+          200: {
+            description: 'Timeline retornada com sucesso.',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Timeline' }
+              }
+            }
+          },
+          404: { description: 'Serviço não encontrado.' }
+        }
+      }
+    },
+    '/services/{id}/historico/observacao': {
+      post: {
+        tags: ['Histórico de Serviços'],
+        summary: 'Adicionar observação manual ao histórico (Apenas dono do serviço ou ADMIN)',
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do serviço' }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  comentario: { type: 'string', maxLength: 255, example: 'Cliente solicitou alteração no prazo' },
+                  observacao: { type: 'string', maxLength: 1000, example: 'Detalhamento adicional sobre a solicitação do cliente...' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'Observação adicionada com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Observação adicionada ao histórico com sucesso!' },
+                    data: { $ref: '#/components/schemas/Historico' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Você não tem permissão.' },
+          404: { description: 'Serviço não encontrado.' }
+        }
+      }
+    },
+    '/admin/historico': {
+      get: {
+        tags: ['Administração'],
+        summary: 'Listar todo o histórico do sistema (Apenas ADMIN)',
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 }, description: 'Número da página' },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 }, description: 'Itens por página' },
+          { name: 'startDate', in: 'query', schema: { type: 'string', format: 'date' }, description: 'Data inicial (YYYY-MM-DD)' },
+          { name: 'endDate', in: 'query', schema: { type: 'string', format: 'date' }, description: 'Data final (YYYY-MM-DD)' },
+          { name: 'status', in: 'query', schema: { type: 'string', enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'] }, description: 'Filtrar por status' }
+        ],
+        responses: {
+          200: {
+            description: 'Histórico do sistema retornado.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    total_registros: { type: 'integer' },
+                    historico: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/Historico' }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Apenas administradores.' }
+        }
+      }
+    },
+    '/admin/historico/{historicoId}': {
+      delete: {
+        tags: ['Administração'],
+        summary: 'Deletar um registro histórico específico (Apenas ADMIN)',
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: 'historicoId', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID do registro histórico' }
+        ],
+        responses: {
+          200: {
+            description: 'Registro deletado com sucesso.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Registro histórico deletado com sucesso!' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Token não fornecido ou inválido.' },
+          403: { description: 'Acesso negado. Apenas administradores.' },
+          404: { description: 'Registro histórico não encontrado.' }
         }
       }
     }
@@ -386,7 +805,17 @@ const swaggerDocument = {
 };
 
 const setupSwagger = (app) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'WorkStock API - Documentação',
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'none',
+      filter: true,
+      showRequestDuration: true
+    }
+  }));
 };
 
 module.exports = setupSwagger;

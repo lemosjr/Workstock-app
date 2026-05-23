@@ -1,24 +1,30 @@
 const userService = require('../service/UserService');
+const logger = require('../config/logger');
 
 class AuthController {
     // C - CREATE: Cadastrar conta [RF002]
     async register(req, res) {
         try {
-            const { name, email, password } = req.body;
+            // Os dados já chegam limpos e validados pelo Joi aqui
+            const { nome_razao, email, cpf_cnpj, senha, telefone, foto_perfil, tipo_usuario } = req.body;
 
-            if (!name || !email || !password) {
-                return res.status(400).json({ error: 'Preencha todos os campos obrigatórios (nome, email e senha).' });
-            }
-
-            const newUser = await userService.registerAccount({ name, email, passwordHash: password });
+            const newUser = await userService.registerAccount({
+                nome_razao,
+                email,
+                cpf_cnpj,
+                senha,
+                telefone,
+                foto_perfil,
+                tipo_usuario
+            });
             
             return res.status(201).json({
                 message: 'Conta vinculada ao sistema com sucesso!',
                 user: {
                     id: newUser.id,
-                    name: newUser.name,
+                    nome_razao: newUser.nome_razao,
                     email: newUser.email,
-                    role: newUser.role
+                    tipo_usuario: newUser.tipo_usuario
                 }
             });
         } catch (error) {
@@ -26,25 +32,19 @@ class AuthController {
         }
     }
 
-    // R - READ: Efetuar login [RF001]
+    // R - READ: Efetuar login com entrega de Token JWT [RF001]
     async login(req, res) {
         try {
-            const { email, password } = req.body;
+            const { email, senha } = req.body;
 
-            if (!email || !password) {
-                return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
-            }
+            // Executa a autenticação e recebe o objeto contendo user e token
+            const sessionData = await userService.authenticateLogin(email, senha);
 
-            const user = await userService.authenticateLogin(email, password);
-
+            // Retorna o token para o frontend salvar e autenticar as próximas rotas
             return res.status(200).json({
                 message: 'Login efetuado com sucesso!',
-                user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role
-                }
+                user: sessionData.user,
+                token: sessionData.token
             });
         } catch (error) {
             return res.status(401).json({ error: error.message });
@@ -69,11 +69,12 @@ class AuthController {
             
             return res.status(200).json({
                 id: user.id,
-                name: user.name,
+                nome_razao: user.nome_razao,
                 email: user.email,
-                role: user.role,
-                createdAt: user.createdAt,
-                updatedAt: user.updatedAt
+                cpf_cnpj: user.cpf_cnpj,
+                telefone: user.telefone,
+                foto_perfil: user.foto_perfil,
+                tipo_usuario: user.tipo_usuario
             });
         } catch (error) {
             return res.status(404).json({ error: error.message });
@@ -90,9 +91,9 @@ class AuthController {
                 message: 'Dados de perfil atualizados com sucesso!',
                 user: {
                     id: updatedUser.id,
-                    name: updatedUser.name,
+                    nome_razao: updatedUser.nome_razao,
                     email: updatedUser.email,
-                    role: updatedUser.role
+                    tipo_usuario: updatedUser.tipo_usuario
                 }
             });
         } catch (error) {
