@@ -1,5 +1,7 @@
 const { Router } = require('express');
 const historicoController = require('../controller/HistoricoController');
+const historicoService = require('../service/HistoricoService');
+const serviceService = require('../service/ServiceService');
 const authMiddleware = require('../middleware/AuthMiddleware');
 const serviceMiddleware = require('../middleware/ServiceMiddleware');
 const historicoValidation = require('../validation/HistoricoValidation');
@@ -10,18 +12,19 @@ const router = Router();
 // ROTAS PÚBLICAS (Acesso livre para consulta)
 // ==========================================
 
-// R - Buscar histórico completo de um serviço específico (público)
 router.get('/services/:id/historico', historicoController.getHistoricoByServiceId);
-
-// R - Buscar timeline completa de um serviço (inclui mudanças e observações)
 router.get('/services/:id/timeline', historicoController.getServiceTimeline);
 
-
 // ==========================================
-// ROTAS PRIVADAS (Requerem autenticação JWT)
+// ROTAS PRIVADAS (Requerem autenticação)
 // ==========================================
 
-// C - Adicionar observação manual ao histórico (dono do serviço ou ADMIN)
+router.get(
+    '/historico/:historicoId',
+    authMiddleware.handle,
+    historicoController.getHistoricoById
+);
+
 router.post(
     '/services/:id/historico/observacao',
     authMiddleware.handle,
@@ -30,25 +33,50 @@ router.post(
     historicoController.addObservacao
 );
 
+// PUT com verificação de ownership
+router.put(
+    '/historico/:historicoId',
+    authMiddleware.handle,
+    async (req, res, next) => {
+        try {
+            const { historicoId } = req.params;
+            const historico = await historicoService.getHistoricoByIdForPermission(historicoId);
+            const service = await serviceService.getRequestById(historico.id_service);
+            
+            if (req.userRole !== 'ADMIN' && service.id_usuario !== req.userId) {
+                return res.status(403).json({
+                    error: 'Acesso negado. Você só pode editar observações dos seus próprios serviços.'
+                });
+            }
+            next();
+        } catch (error) {
+            return res.status(404).json({ error: error.message });
+        }
+    },
+    historicoValidation.updateObservacaoSchema,
+    historicoController.updateObservacao
+);
 
-// ==========================================
-// ROTAS ADMINISTRATIVAS (Apenas ADMIN)
-// ==========================================
+// DELETE - Apenas ADMIN
+router.delete(
+    '/historico/:historicoId',
+    authMiddleware.handle,
+    authMiddleware.authorizeRoles('ADMIN'),
+    historicoController.deleteHistoricoEntry
+);
 
-// R - Listar todo o histórico do sistema (apenas ADMIN)
+router.delete(
+    '/services/:id/historico',
+    authMiddleware.handle,
+    authMiddleware.authorizeRoles('ADMIN'),
+    historicoController.deleteAllServiceHistory
+);
+
 router.get(
     '/admin/historico',
     authMiddleware.handle,
     authMiddleware.authorizeRoles('ADMIN'),
     historicoController.getAllHistorico
-);
-
-// D - Deletar um registro histórico específico (apenas ADMIN)
-router.delete(
-    '/admin/historico/:historicoId',
-    authMiddleware.handle,
-    authMiddleware.authorizeRoles('ADMIN'),
-    historicoController.deleteHistoricoEntry
 );
 
 module.exports = router;
