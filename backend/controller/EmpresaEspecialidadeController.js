@@ -9,7 +9,8 @@ class EmpresaEspecialidadeController {
             const { empresaId } = req.params;
             const { id_especialidade } = req.body;
 
-            const empresa = await empresaRepository.findByUsuarioId(empresaId);
+            let empresa = await empresaRepository.findById(empresaId);
+            if (!empresa) empresa = await empresaRepository.findByUsuarioId(empresaId);
             if (!empresa) return res.status(404).json({ error: 'Empresa não encontrada.' });
 
             const especialidade = await especialidadeRepository.findById(id_especialidade);
@@ -26,7 +27,8 @@ class EmpresaEspecialidadeController {
     async listar(req, res) {
         try {
             const { empresaId } = req.params;
-            const empresa = await empresaRepository.findByUsuarioId(empresaId);
+            let empresa = await empresaRepository.findById(empresaId);
+            if (!empresa) empresa = await empresaRepository.findByUsuarioId(empresaId);
             if (!empresa) return res.status(404).json({ error: 'Empresa não encontrada.' });
             const vinculos = await empresaEspecialidadeRepository.findByEmpresaId(empresa.id);
             return res.status(200).json(vinculos);
@@ -39,7 +41,8 @@ class EmpresaEspecialidadeController {
     async desvincular(req, res) {
         try {
             const { empresaId, especialidadeId } = req.params;
-            const empresa = await empresaRepository.findByUsuarioId(empresaId);
+            let empresa = await empresaRepository.findById(empresaId);
+            if (!empresa) empresa = await empresaRepository.findByUsuarioId(empresaId);
             if (!empresa) return res.status(404).json({ error: 'Empresa não encontrada.' });
             const removido = await empresaEspecialidadeRepository.desvincular(empresa.id, especialidadeId);
             if (!removido) return res.status(404).json({ error: 'Vínculo não encontrado.' });
