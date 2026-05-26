@@ -1,12 +1,11 @@
 module.exports = {
     // ==========================================
-    // GET - Listar histórico do serviço
+    // GET /services/{id}/historico
     // ==========================================
     '/services/{id}/historico': {
         get: {
             tags: ['Histórico de Serviços'],
-            summary: 'Buscar histórico completo de um serviço',
-            description: 'Retorna todo o histórico de mudanças de status e observações de um serviço específico',
+            summary: 'Listar todo o histórico do serviço',
             parameters: [
                 {
                     name: 'id',
@@ -17,49 +16,38 @@ module.exports = {
                 }
             ],
             responses: {
-                200: {
-                    description: 'Histórico retornado com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    service_id: { type: 'integer' },
-                                    total_registros: { type: 'integer' },
-                                    historico: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/Historico' }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                404: {
-                    description: 'Serviço não encontrado.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    error: { type: 'string' }
-                                }
-                            }
-                        }
-                    }
+                200: { description: 'Histórico retornado com sucesso.' },
+                404: { description: 'Serviço não encontrado.' }
+            }
+        },
+        delete: {
+            tags: ['Histórico de Serviços'],
+            summary: 'Remover todo o histórico do serviço',
+            security: [{ BearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer' },
+                    description: 'ID do serviço'
                 }
+            ],
+            responses: {
+                200: { description: 'Histórico removido com sucesso.' },
+                401: { description: 'Token não fornecido.' },
+                403: { description: 'Acesso negado. Apenas ADMIN.' }
             }
         }
     },
 
     // ==========================================
-    // GET - Timeline completa
+    // GET /services/{id}/timeline
     // ==========================================
     '/services/{id}/timeline': {
         get: {
             tags: ['Histórico de Serviços'],
-            summary: 'Buscar timeline completa de um serviço',
-            description: 'Retorna uma timeline detalhada incluindo mudanças de status e observações manuais',
+            summary: 'Ver timeline completa do serviço',
             parameters: [
                 {
                     name: 'id',
@@ -70,39 +58,19 @@ module.exports = {
                 }
             ],
             responses: {
-                200: {
-                    description: 'Timeline retornada com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/Timeline' }
-                        }
-                    }
-                },
-                404: {
-                    description: 'Serviço não encontrado.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    error: { type: 'string' }
-                                }
-                            }
-                        }
-                    }
-                }
+                200: { description: 'Timeline retornada com sucesso.' },
+                404: { description: 'Serviço não encontrado.' }
             }
         }
     },
 
     // ==========================================
-    // GET - Buscar registro específico do histórico
+    // /historico/{historicoId} (GET, PUT, DELETE juntos)
     // ==========================================
     '/historico/{historicoId}': {
         get: {
             tags: ['Histórico de Serviços'],
-            summary: 'Buscar um registro específico do histórico por ID',
-            description: 'Retorna os detalhes de um único registro histórico (apenas ADMIN ou dono do serviço)',
+            summary: 'Buscar registro histórico por ID',
             security: [{ BearerAuth: [] }],
             parameters: [
                 {
@@ -114,91 +82,15 @@ module.exports = {
                 }
             ],
             responses: {
-                200: {
-                    description: 'Registro histórico encontrado.',
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/Historico' }
-                        }
-                    }
-                },
-                401: { description: 'Token não fornecido ou inválido.' },
+                200: { description: 'Registro encontrado.' },
+                401: { description: 'Token não fornecido.' },
                 403: { description: 'Acesso negado.' },
-                404: { description: 'Registro histórico não encontrado.' }
+                404: { description: 'Registro não encontrado.' }
             }
-        }
-    },
-
-    // ==========================================
-    // POST - Adicionar observação manual
-    // ==========================================
-    '/services/{id}/historico/observacao': {
-        post: {
-            tags: ['Histórico de Serviços'],
-            summary: 'Adicionar observação manual ao histórico',
-            description: 'Adiciona uma observação manual ao histórico do serviço (apenas dono do serviço ou ADMIN)',
-            security: [{ BearerAuth: [] }],
-            parameters: [
-                {
-                    name: 'id',
-                    in: 'path',
-                    required: true,
-                    schema: { type: 'integer' },
-                    description: 'ID do serviço'
-                }
-            ],
-            requestBody: {
-                required: true,
-                content: {
-                    'application/json': {
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                comentario: {
-                                    type: 'string',
-                                    maxLength: 255,
-                                    example: 'Cliente solicitou alteração no prazo'
-                                },
-                                observacao: {
-                                    type: 'string',
-                                    maxLength: 1000,
-                                    example: 'Cliente pediu para antecipar o serviço para a próxima semana'
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            responses: {
-                201: {
-                    description: 'Observação adicionada com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Observação adicionada ao histórico com sucesso!' },
-                                    data: { $ref: '#/components/schemas/Historico' }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: { description: 'Token não fornecido ou inválido.' },
-                403: { description: 'Acesso negado. Você não tem permissão.' },
-                404: { description: 'Serviço não encontrado.' }
-            }
-        }
-    },
-
-    // ==========================================
-    // PUT - Atualizar observação do histórico
-    // ==========================================
-    '/historico/{historicoId}': {
+        },
         put: {
             tags: ['Histórico de Serviços'],
-            summary: 'Atualizar uma observação do histórico',
-            description: 'Atualiza o comentário ou observação de um registro histórico (apenas ADMIN ou dono do serviço)',
+            summary: 'Atualizar observação do histórico',
             security: [{ BearerAuth: [] }],
             parameters: [
                 {
@@ -218,13 +110,11 @@ module.exports = {
                             properties: {
                                 comentario: {
                                     type: 'string',
-                                    maxLength: 255,
                                     example: 'Comentário atualizado'
                                 },
                                 observacao: {
                                     type: 'string',
-                                    maxLength: 1000,
-                                    example: 'Observação atualizada com novas informações'
+                                    example: 'Observação atualizada'
                                 }
                             }
                         }
@@ -232,36 +122,16 @@ module.exports = {
                 }
             },
             responses: {
-                200: {
-                    description: 'Registro histórico atualizado com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Registro histórico atualizado com sucesso!' },
-                                    data: { $ref: '#/components/schemas/Historico' }
-                                }
-                            }
-                        }
-                    }
-                },
+                200: { description: 'Registro atualizado com sucesso.' },
                 400: { description: 'Dados inválidos.' },
-                401: { description: 'Token não fornecido ou inválido.' },
-                403: { description: 'Acesso negado. Apenas o dono do serviço ou ADMIN podem editar.' },
-                404: { description: 'Registro histórico não encontrado.' }
+                401: { description: 'Token não fornecido.' },
+                403: { description: 'Acesso negado.' },
+                404: { description: 'Registro não encontrado.' }
             }
-        }
-    },
-
-    // ==========================================
-    // DELETE - Remover registro do histórico
-    // ==========================================
-    '/historico/{historicoId}': {
+        },
         delete: {
             tags: ['Histórico de Serviços'],
-            summary: 'Remover um registro do histórico',
-            description: 'Remove permanentemente um registro histórico (apenas ADMIN)',
+            summary: 'Remover registro histórico',
             security: [{ BearerAuth: [] }],
             parameters: [
                 {
@@ -273,34 +143,21 @@ module.exports = {
                 }
             ],
             responses: {
-                200: {
-                    description: 'Registro histórico removido com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Registro histórico removido com sucesso!' }
-                                }
-                            }
-                        }
-                    }
-                },
-                401: { description: 'Token não fornecido ou inválido.' },
-                403: { description: 'Acesso negado. Apenas administradores podem remover registros históricos.' },
-                404: { description: 'Registro histórico não encontrado.' }
+                200: { description: 'Registro removido com sucesso.' },
+                401: { description: 'Token não fornecido.' },
+                403: { description: 'Acesso negado. Apenas ADMIN.' },
+                404: { description: 'Registro não encontrado.' }
             }
         }
     },
 
     // ==========================================
-    // DELETE - Remover todos registros de um serviço
+    // POST /services/{id}/historico/observacao
     // ==========================================
-    '/services/{id}/historico': {
-        delete: {
+    '/services/{id}/historico/observacao': {
+        post: {
             tags: ['Histórico de Serviços'],
-            summary: 'Remover todo o histórico de um serviço',
-            description: 'Remove permanentemente todos os registros históricos de um serviço específico (apenas ADMIN)',
+            summary: 'Adicionar observação ao histórico',
             security: [{ BearerAuth: [] }],
             parameters: [
                 {
@@ -311,24 +168,74 @@ module.exports = {
                     description: 'ID do serviço'
                 }
             ],
-            responses: {
-                200: {
-                    description: 'Histórico do serviço removido com sucesso.',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Todo o histórico do serviço foi removido com sucesso!' },
-                                    total_removidos: { type: 'integer' }
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                comentario: {
+                                    type: 'string',
+                                    example: 'Cliente solicitou alteração'
+                                },
+                                observacao: {
+                                    type: 'string',
+                                    example: 'Detalhamento da solicitação'
                                 }
                             }
                         }
                     }
-                },
-                401: { description: 'Token não fornecido ou inválido.' },
-                403: { description: 'Acesso negado. Apenas administradores podem remover histórico.' },
+                }
+            },
+            responses: {
+                201: { description: 'Observação adicionada com sucesso.' },
+                400: { description: 'Dados inválidos.' },
+                401: { description: 'Token não fornecido.' },
+                403: { description: 'Acesso negado.' },
                 404: { description: 'Serviço não encontrado.' }
+            }
+        }
+    },
+
+    // ==========================================
+    // GET /admin/historico
+    // ==========================================
+    '/admin/historico': {
+        get: {
+            tags: ['Administração'],
+            summary: 'Listar todo o histórico do sistema',
+            security: [{ BearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'page',
+                    in: 'query',
+                    schema: { type: 'integer', default: 1 },
+                    description: 'Número da página'
+                },
+                {
+                    name: 'limit',
+                    in: 'query',
+                    schema: { type: 'integer', default: 20 },
+                    description: 'Itens por página'
+                },
+                {
+                    name: 'startDate',
+                    in: 'query',
+                    schema: { type: 'string', format: 'date' },
+                    description: 'Data inicial'
+                },
+                {
+                    name: 'endDate',
+                    in: 'query',
+                    schema: { type: 'string', format: 'date' },
+                    description: 'Data final'
+                }
+            ],
+            responses: {
+                200: { description: 'Histórico retornado com sucesso.' },
+                401: { description: 'Token não fornecido.' },
+                403: { description: 'Acesso negado. Apenas ADMIN.' }
             }
         }
     }
