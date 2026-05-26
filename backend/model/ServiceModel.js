@@ -3,58 +3,73 @@ const sequelize = require('../config/sequelize');
 
 const ServiceModel = sequelize.define('ServiceRequest', {
     id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    clientName: {
-        type: DataTypes.STRING(150),
-        allowNull: false,
-        field: 'client_name'
-    },
-    category: {
-        type: DataTypes.STRING(50),
-        allowNull: false // Ex: 'Pintura', 'Alvenaria', 'Elétrica'
-    },
-    propertyType: {
-        type: DataTypes.STRING(50),
-        allowNull: false, // Ex: 'Apartamento', 'Casa'
-        field: 'property_type'
-    },
-    description: {
-        type: DataTypes.TEXT,
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
         allowNull: false
     },
-    locationApprox: {
+    id_usuario: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        field: 'id_usuario',
+        references: {
+            model: 'usuario',
+            key: 'id'
+        }
+    },
+    categoria: {
         type: DataTypes.STRING(150),
-        allowNull: false,
-        field: 'location_approx'
+        allowNull: false
     },
-    urgencyDeadline: {
-        type: DataTypes.STRING(50),
+    tipo_imovel: {
+        type: DataTypes.STRING(100),
         allowNull: false,
-        field: 'urgency_deadline'
+        field: 'tipo_imovel'
     },
-    estimatedBudget: {
-        type: DataTypes.NUMERIC(12, 2),
+    endereco: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
+    coordenadas: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+    },
+    prazo_urgencia: {
+        type: DataTypes.STRING(100),
         allowNull: false,
-        field: 'estimated_budget'
+        field: 'prazo_urgencia'
     },
-    status: {
-        type: DataTypes.STRING(20),
-        defaultValue: 'open',
-        allowNull: false // open, in_progress, completed, canceled
+    faixa_preco: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        field: 'faixa_preco' // Ajustado para refletir o varchar do diagrama
+    },
+    status_solicitacao: {
+        type: DataTypes.ENUM('ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'),
+        defaultValue: 'ABERTO',
+        allowNull: false,
+        field: 'status_solicitacao'
+    },
+    foto: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
+    data_criacao: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+        field: 'data_criacao'
     }
 }, {
-    tableName: 'service_requests',
-    timestamps: true,
-    // Criação automática dos índices compostos para otimizar os filtros do dashboard [RF014]
+    tableName: 'servico',
+    timestamps: false, // Controlado manualmente via data_criacao conforme o diagrama
     indexes: [
         {
-            name: 'idx_services_lookup',
-            fields: ['status', 'category', 'property_type']
+            name: 'idx_servico_busca',
+            fields: ['status_solicitacao', 'categoria']
         }
     ]
 });
+
 
 module.exports = ServiceModel;

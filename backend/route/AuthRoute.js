@@ -1,16 +1,35 @@
 const { Router } = require('express');
 const authController = require('../controller/AuthController');
+const userValidation = require('../validation/UserValidation');
+const authMiddleware = require('../middleware/AuthMiddleware');
+const userMiddleware = require('../middleware/UserMiddleware');
 
 const router = Router();
 
-// Endpoints de Autenticação e Cadastro
-router.post('/auth/register', authController.register); // C - Cadastrar Conta [RF002]
-router.post('/auth/login', authController.login);       // R - Efetuar Login [RF001]
+// ==========================================
+// ROTAS PÚBLICAS
+// ==========================================
 
-// Endpoints Adicionais do CRUD de Usuários
-router.get('/users', authController.getAll);            // R - Listar todos os usuários
-router.get('/users/:id', authController.getById);        // R - Obter perfil por ID
-router.put('/users/:id', authController.update);        // U - Editar dados de perfil [RF004]
-router.delete('/users/:id', authController.delete);     // D - Excluir conta de usuário
+router.post('/auth/register', userValidation.registerSchema, authController.register);
+router.post('/auth/login', userValidation.loginSchema, authController.login);
+
+// Nova rota: Refresh Token
+router.post('/auth/refresh-token', authController.refreshToken);
+
+// ==========================================
+// ROTAS PRIVADAS (Requerem autenticação)
+// ==========================================
+
+// Nova rota: Logout
+router.post('/auth/logout', authMiddleware.handle, authController.logout);
+
+// Nova rota: Logout de todos dispositivos
+router.post('/auth/logout-all', authMiddleware.handle, authController.logoutAllDevices);
+
+// Rotas de usuário
+router.get('/users', authMiddleware.handle, authMiddleware.authorizeRoles('ADMIN'), authController.getAll);
+router.get('/users/:id', authMiddleware.handle, authController.getById);
+router.put('/users/:id', authMiddleware.handle, userMiddleware.checkUserOwnership, authController.update);
+router.delete('/users/:id', authMiddleware.handle, userMiddleware.checkUserOwnership, authController.delete);
 
 module.exports = router;
