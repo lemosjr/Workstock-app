@@ -8,10 +8,10 @@ const AvaliacaoModel = sequelize.define('AvaliacaoRequest', {
         autoIncrement: true,
         allowNull: false
     },
-    id_servico: {
+    id_service: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: 'id_servico',
+        field: 'id_service',
         references: {
             model: 'servico',
             key: 'id'
