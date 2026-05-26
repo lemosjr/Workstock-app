@@ -1,6 +1,11 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 
+/**
+ * Modelo de Postagem
+ * Define a estrutura e validações de postagens no banco de dados.
+ * Postagens são conteúdos criados por empresas para compartilhar no feed.
+ */
 const PostagemModel = sequelize.define('Postagem', {
     id: {
         type: DataTypes.INTEGER,
@@ -26,14 +31,14 @@ const PostagemModel = sequelize.define('Postagem', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW
-    }
-,
+    },
     fotos: {
-        type: DataTypes.ARRAY(DataTypes.STRING(1425)),
-        allowNull: true
+        type: DataTypes.JSON,
+        allowNull: true,
+        comment: 'Array de URLs de fotos em formato JSON'
     }
-}, {
-}, {
+},
+{
     tableName: 'postagem',
     timestamps: false,
 
