@@ -4,7 +4,6 @@ const logger = require('../config/logger');
 
 class EmpresaService {
     async createOrUpdatePerfil(usuarioId, empresaData) {
-        // Verifica se usuário existe e é do tipo EMPRESA
         const user = await userRepository.findById(usuarioId);
         if (!user) {
             throw new Error('Usuário não encontrado.');
@@ -13,15 +12,12 @@ class EmpresaService {
             throw new Error('Apenas usuários do tipo EMPRESA podem ter perfil empresarial.');
         }
 
-        // Verifica se já existe perfil
         let empresa = await empresaRepository.findByUsuarioId(usuarioId);
         
         if (empresa) {
-            // Atualiza existente
             empresa = await empresaRepository.update(empresa.id, empresaData);
             logger.info(`Perfil empresarial atualizado para usuário ID ${usuarioId}`);
         } else {
-            // Cria novo
             empresa = await empresaRepository.create({
                 id_usuario: usuarioId,
                 ...empresaData
@@ -40,8 +36,9 @@ class EmpresaService {
         return empresa;
     }
 
-    async getAllEmpresas() {
-        return await empresaRepository.findAll();
+    // ATUALIZADO: Com paginação
+    async getAllEmpresas(page = 1, limit = 10, filters = {}) {
+        return await empresaRepository.findAll(page, limit, filters);
     }
 
     async updateAvaliacao(usuarioId, novaAvaliacao) {
@@ -50,7 +47,6 @@ class EmpresaService {
             throw new Error('Empresa não encontrada.');
         }
         
-        // Calcula nova média (simplificado - idealmente viria de avaliações reais)
         const mediaAtual = parseFloat(empresa.avaliacao_media) || 0;
         const novaMedia = (mediaAtual + novaAvaliacao) / 2;
         

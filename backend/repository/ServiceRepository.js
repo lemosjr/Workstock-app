@@ -1,23 +1,38 @@
 const { ServiceRequest, User } = require('../model/index');
+const { Op } = require('sequelize');
 
 class ServiceRepository {
     async create(serviceData) {
         return await ServiceRequest.create(serviceData);
     }
 
-    async findAll() {
-        return await ServiceRequest.findAll({
-            include: [{ model: User, as: 'cliente', attributes: ['id', 'nome_razao', 'email', 'telefone'] }],
-            order: [['data_criacao', 'DESC']]
-        });
-    }
+    // ATUALIZADO: Com paginação (unifica findAll e findWithFilters)
+    async findAll(page = 1, limit = 10, filters = {}) {
+        const offset = (page - 1) * limit;
+        const where = {};
+        
+        if (filters.categoria) {
+            where.categoria = { [Op.iLike]: `%${filters.categoria}%` };
+        }
+        if (filters.tipo_imovel) {
+            where.tipo_imovel = { [Op.iLike]: `%${filters.tipo_imovel}%` };
+        }
+        if (filters.status) {
+            where.status_solicitacao = filters.status;
+        }
+        if (filters.id_usuario) {
+            where.id_usuario = filters.id_usuario;
+        }
 
-    async findWithFilters(whereConditions) {
-        return await ServiceRequest.findAll({
-            where: whereConditions,
+        const { count, rows } = await ServiceRequest.findAndCountAll({
+            where,
             include: [{ model: User, as: 'cliente', attributes: ['id', 'nome_razao', 'email', 'telefone'] }],
-            order: [['data_criacao', 'DESC']]
+            order: [['data_criacao', 'DESC']],
+            limit,
+            offset
         });
+
+        return { total: count, services: rows };
     }
 
     async findById(id) {

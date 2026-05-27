@@ -5,6 +5,8 @@ const EmpresaModel = require('./EmpresaModel');
 const HistoricoModel = require('./HistoricoModel');
 const RefreshTokenModel = require('./RefreshTokenModel');
 const PostagemModel = require('./PostagemModel');
+const EspecialidadeModel = require('./EspecialidadeModel');
+const EmpresaEspecialidadeModel = require('./EmpresaEspecialidadeModel');
 
 const db = {
     sequelize,
@@ -15,6 +17,8 @@ const db = {
     Historico: HistoricoModel,
     RefreshToken: RefreshTokenModel,
     Postagem: PostagemModel
+    Especialidade: EspecialidadeModel,
+    EmpresaEspecialidade: EmpresaEspecialidadeModel
 };
 
 // Associações existentes
@@ -33,6 +37,9 @@ db.RefreshToken.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'usuario' });
 
 db.User.hasMany(db.Postagem, {foreignKey: 'id_usuario',as: 'postagens'});
 db.Postagem.belongsTo(db.User, {foreignKey: 'id_usuario',as: 'usuario'});
+// Nova associação: Empresa N:N Especialidade (via tabela pivô empresa_especialidade)
+db.Empresa.belongsToMany(db.Especialidade, { through: db.EmpresaEspecialidade, foreignKey: 'id_empresa', as: 'especialidades' });
+db.Especialidade.belongsToMany(db.Empresa, { through: db.EmpresaEspecialidade, foreignKey: 'id_especialidade', as: 'empresas' });
 
 // Método para registrar histórico automaticamente
 db.ServiceRequest.addHook('beforeUpdate', async (service, options) => {
