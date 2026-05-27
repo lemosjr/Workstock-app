@@ -27,21 +27,21 @@ class AvaliacaoService {
         }
     }
 
-    async getAllAvaliacao(filters = {}) {
+    // async getAllAvaliacao(filters = {}) {
       
-    }
+    // }
 
-    async getAvaliacaoById(id) {
+    // async getAvaliacaoById(id) {
 
-    }
+    // }
 
-    async updateAvaliacao(id, updateData) {
+    // async updateAvaliacao(id, updateData) {
 
-    }
+    // }
 
-    async deleteAvaliacao(id) {
+    // async deleteAvaliacao(id) {
 
-    }
+    // }
 }
 
-module.exports = new ServiceService();
+module.exports = new AvaliacaoService();
