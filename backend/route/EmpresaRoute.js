@@ -2,7 +2,6 @@ const { Router } = require('express');
 const empresaController = require('../controller/EmpresaController');
 const authMiddleware = require('../middleware/AuthMiddleware');
 const empresaValidation = require('../validation/EmpresaValidation');
-const empresaEspecialidadeController = require('../controller/EmpresaEspecialidadeController');
 
 const router = Router();
 
@@ -39,25 +38,6 @@ router.get(
     authMiddleware.handle, 
     authMiddleware.authorizeRoles('EMPRESA'), 
     empresaController.getMyPerfil
-);
-
-// Vincular especialidade a uma empresa
-router.post(
-    '/empresas/:empresaId/especialidades',
-    authMiddleware.handle,
-    authMiddleware.authorizeRoles('EMPRESA'),
-    empresaEspecialidadeController.vincular
-);
-
-// Listar especialidades de uma empresa
-router.get('/empresas/:empresaId/especialidades', empresaEspecialidadeController.listar);
-
-// Desvincular especialidade de uma empresa
-router.delete(
-    '/empresas/:empresaId/especialidades/:especialidadeId',
-    authMiddleware.handle,
-    authMiddleware.authorizeRoles('EMPRESA'),
-    empresaEspecialidadeController.desvincular
 );
 
 module.exports = router;
