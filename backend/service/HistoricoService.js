@@ -1,6 +1,6 @@
 const historicoRepository = require('../repository/HistoricoRepository');
 const serviceRepository = require('../repository/ServiceRepository');
-const userRepository = require('../repository/UserRepository'); // CORRIGIDO
+const userRepository = require('../repository/UserRepository');
 const logger = require('../config/logger');
 
 class HistoricoService {
@@ -106,10 +106,12 @@ class HistoricoService {
         return total;
     }
 
+    // MANTIDO: Método existente (já funciona com limit/offset)
     async getAllHistorico(filters = {}) {
         return await historicoRepository.findAll(filters);
     }
 
+    // MANTIDO: Método existente
     async countHistorico(filters = {}) {
         return await historicoRepository.count(filters);
     }

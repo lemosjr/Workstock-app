@@ -1,4 +1,5 @@
-const { Empresa } = require('../model/index');
+const { Empresa, User } = require('../model/index');
+const { Op } = require('sequelize');
 const logger = require('../config/logger');
 
 class EmpresaRepository {
@@ -19,10 +20,31 @@ class EmpresaRepository {
         return await Empresa.findOne({ where: { id_usuario } });
     }
 
-    async findAll() {
-        return await Empresa.findAll({
-            order: [['id', 'ASC']]
+    // ATUALIZADO: Com paginação e filtros
+    async findAll(page = 1, limit = 10, filters = {}) {
+        const offset = (page - 1) * limit;
+        const where = {};
+        
+        if (filters.avaliacao_min) {
+            where.avaliacao_media = { [Op.gte]: filters.avaliacao_min };
+        }
+        if (filters.descricao) {
+            where.descricao = { [Op.iLike]: `%${filters.descricao}%` };
+        }
+
+        const { count, rows } = await Empresa.findAndCountAll({
+            where,
+            include: [{ 
+                model: User, 
+                as: 'usuario', 
+                attributes: ['id', 'nome_razao', 'email', 'telefone', 'foto_perfil'] 
+            }],
+            order: [['avaliacao_media', 'DESC']],
+            limit,
+            offset
         });
+
+        return { total: count, empresas: rows };
     }
 
     async update(id, updateData) {

@@ -3,6 +3,7 @@ const serviceSchemas = require('./service.schema');
 const empresaSchemas = require('./empresa.schema');
 const historicoSchemas = require('./historico.schema');
 const especialidadeSchemas = require('./especialidade.schema');
+const paginationSchema = require('./pagination.schema');
 
 const schemas = {
     ...userSchemas,
@@ -10,6 +11,7 @@ const schemas = {
     ...empresaSchemas,
     ...historicoSchemas,
     ...especialidadeSchemas
+    ...paginationSchema
 };
 
 module.exports = schemas;
