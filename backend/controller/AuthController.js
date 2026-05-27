@@ -109,13 +109,33 @@ class AuthController {
     // Resto dos métodos (getAll, getById, update, delete)
     async getAll(req, res) {
         try {
-            const users = await userService.getAllUsers();
-            return res.status(200).json(users);
+            // Apenas ADMIN pode listar todos os usuários
+            if (req.userRole !== 'ADMIN') {
+                return res.status(403).json({ 
+                    error: 'Acesso negado. Apenas administradores podem listar todos os usuários.' 
+                });
+            }
+    
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const { tipo_usuario, nome } = req.query;
+    
+            const result = await userService.getAllUsers(page, limit, { tipo_usuario, nome });
+    
+            return res.status(200).json({
+                users: result.users,
+                pagination: {
+                    total: result.total,
+                    page: page,
+                    limit: limit,
+                    totalPages: Math.ceil(result.total / limit)
+                }
+            });
         } catch (error) {
             return res.status(400).json({ error: error.message });
         }
     }
-
+    
     async getById(req, res) {
         try {
             const { id } = req.params;
