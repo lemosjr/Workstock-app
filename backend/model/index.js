@@ -4,6 +4,7 @@ const ServiceModel = require('./ServiceModel');
 const EmpresaModel = require('./EmpresaModel');
 const HistoricoModel = require('./HistoricoModel');
 const RefreshTokenModel = require('./RefreshTokenModel');
+const PostagemModel = require('./PostagemModel');
 const EspecialidadeModel = require('./EspecialidadeModel');
 const EmpresaEspecialidadeModel = require('./EmpresaEspecialidadeModel');
 
@@ -15,6 +16,7 @@ const db = {
     Empresa: EmpresaModel,
     Historico: HistoricoModel,
     RefreshToken: RefreshTokenModel,
+    Postagem: PostagemModel
     Especialidade: EspecialidadeModel,
     EmpresaEspecialidade: EmpresaEspecialidadeModel
 };
@@ -33,6 +35,8 @@ db.Historico.belongsTo(db.ServiceRequest, { foreignKey: 'id_service', as: 'servi
 db.User.hasMany(db.RefreshToken, { foreignKey: 'id_usuario', as: 'refresh_tokens' });
 db.RefreshToken.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'usuario' });
 
+db.User.hasMany(db.Postagem, {foreignKey: 'id_usuario',as: 'postagens'});
+db.Postagem.belongsTo(db.User, {foreignKey: 'id_usuario',as: 'usuario'});
 // Nova associação: Empresa N:N Especialidade (via tabela pivô empresa_especialidade)
 db.Empresa.belongsToMany(db.Especialidade, { through: db.EmpresaEspecialidade, foreignKey: 'id_empresa', as: 'especialidades' });
 db.Especialidade.belongsToMany(db.Empresa, { through: db.EmpresaEspecialidade, foreignKey: 'id_especialidade', as: 'empresas' });
