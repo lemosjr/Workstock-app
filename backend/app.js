@@ -6,6 +6,7 @@ const serviceRoutes = require('./route/ServiceRoute');
 const empresaRoutes = require('./route/EmpresaRoute');
 const historicoRoutes = require('./route/HistoricoRoute');
 const especialidadeRoutes = require('./route/EspecialidadeRoute');
+const orcamentoRoutes = require('./route/OrcamentoRoute');
 const empresaEspecialidadeRoutes = require('./route/EmpresaEspecialidadeRoute');
 const setupSwagger = require('./config/swagger');
 const logger = require('./config/logger');
@@ -25,6 +26,7 @@ app.use('/api', serviceRoutes);
 app.use('/api', empresaRoutes);
 app.use('/api', historicoRoutes);
 app.use('/api', especialidadeRoutes);
+app.use('/api', orcamentoRoutes);
 app.use('/api', empresaEspecialidadeRoutes);
 
 app.get('/', (req, res) => {
