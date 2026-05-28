@@ -16,7 +16,7 @@ const db = {
     Empresa: EmpresaModel,
     Historico: HistoricoModel,
     RefreshToken: RefreshTokenModel,
-    Postagem: PostagemModel
+    Postagem: PostagemModel,
     Especialidade: EspecialidadeModel,
     EmpresaEspecialidade: EmpresaEspecialidadeModel
 };
