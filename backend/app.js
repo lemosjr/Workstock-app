@@ -38,12 +38,15 @@ app.get('/', (req, res) => {
 // Inicialização do Banco de Dados e Servidor
 async function startServer() {
     try {
+        // Verifica a conexão com o banco de dados
         await db.sequelize.authenticate();
         logger.info('Conexão com o PostgreSQL realizada via Sequelize com sucesso!');
 
+        // Sincroniza a estrutura dos models de forma segura (mantém os dados)
         await db.sequelize.sync({ alter: true });
-        logger.info('Tabelas, colunas e índices validados/criados automaticamente.');
+        logger.info('Tabelas, colunas e índices validados/atualizados com sucesso.');
 
+        // Inicializa o servidor HTTP
         app.listen(PORT, () => {
             logger.info(`Servidor backend operacional na porta ${PORT}`);
             logger.info(`Documentação interativa disponível em http://localhost:${PORT}/api-docs`);

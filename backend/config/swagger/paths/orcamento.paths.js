@@ -1,65 +1,140 @@
 module.exports = {
-    '/orcamentos': {
-      post: {
-        tags: ['Orçamentos'],
-        summary: 'Cria um novo orçamento',
-        description: 'Endpoint para uma empresa registar uma proposta de orçamento para um serviço específico.',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['id_servico', 'id_empresa', 'valor_estimado', 'prazo_estimado'],
-                properties: {
-                  id_servico: { type: 'integer', example: 1 },
-                  id_empresa: { type: 'integer', example: 2 },
-                  valor_estimado: { type: 'number', example: 1200.50 },
-                  prazo_estimado: { type: 'string', example: '3 dias' },
-                  descricao_tecnica: { type: 'string', example: 'Manutenção preventiva inclusa' },
-                  status_proposta: { type: 'string', enum: ['pendente', 'aprovado', 'rejeitado'], example: 'pendente' }
-                }
-              }
+  '/orcamentos': {
+    post: {
+      tags: ['Orçamentos'],
+      summary: 'Cria um novo orçamento',
+      description: 'Regista um novo orçamento associado a uma solicitação de serviço e a uma empresa.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/OrcamentoInput'
             }
           }
+        }
+      },
+      responses: {
+        201: {
+          description: 'Orçamento enviado com sucesso!'
         },
-        responses: {
-          201: {
-            description: 'Orçamento criado com sucesso',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Orcamento' }
-              }
-            }
-          },
-          400: { description: 'Erro na validação dos dados enviados.' }
+        400: {
+          description: 'Erro na validação dos dados enviados.'
         }
       }
     },
-    '/orcamentos/{id}': {
-      get: {
-        tags: ['Orçamentos'],
-        summary: 'Procura um orçamento pelo ID',
-        parameters: [
-          {
-            name: 'id',
-            in: 'path',
-            required: true,
-            schema: { type: 'integer' },
-            description: 'ID numérico do orçamento a procurar'
-          }
-        ],
-        responses: {
-          200: {
-            description: 'Orçamento encontrado com sucesso',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Orcamento' }
-              }
-            }
-          },
-          404: { description: 'Orçamento não encontrado.' }
+    get: {
+      tags: ['Orçamentos'],
+      summary: 'Lista todos os orçamentos',
+      description: 'Retorna uma lista com todos os orçamentos registados no sistema.',
+      responses: {
+        200: {
+          description: 'Lista de orçamentos obtida com sucesso.'
+        },
+        400: {
+          description: 'Erro ao procurar os orçamentos.'
         }
       }
     }
-  };
+  },
+
+  '/orcamentos/{id}': {
+    get: {
+      tags: ['Orçamentos'],
+      summary: 'Procura um orçamento pelo ID',
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'ID do orçamento a ser procurado',
+          schema: { type: 'integer' }
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Orçamento encontrado com sucesso.'
+        },
+        404: {
+          description: 'Orçamento não encontrado.'
+        }
+      }
+    },
+    put: {
+      tags: ['Orçamentos'],
+      summary: 'Atualiza um orçamento pelo ID',
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'ID do orçamento a ser atualizado',
+          schema: { type: 'integer' }
+        }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/OrcamentoInput'
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Orçamento atualizado com sucesso!'
+        },
+        400: {
+          description: 'Erro ao atualizar o orçamento.'
+        }
+      }
+    },
+    delete: {
+      tags: ['Orçamentos'],
+      summary: 'Exclui um orçamento do sistema',
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: 'ID do orçamento a ser removido',
+          schema: { type: 'integer' }
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Orçamento excluído com sucesso do sistema.'
+        },
+        400: {
+          description: 'Erro ao tentar eliminar o orçamento.'
+        }
+      }
+    }
+  },
+
+  '/orcamentos/solicitacao/{id_solicitacao}': {
+    get: {
+      tags: ['Orçamentos'],
+      summary: 'Lista os orçamentos de uma solicitação específica',
+      parameters: [
+        {
+          name: 'id_solicitacao',
+          in: 'path',
+          required: true,
+          description: 'ID da solicitação de serviço',
+          schema: { type: 'integer' }
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Lista de orçamentos filtrada com sucesso.'
+        },
+        400: {
+          description: 'Erro ao processar a requisição.'
+        }
+      }
+    }
+  }
+};
