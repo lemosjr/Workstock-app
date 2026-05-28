@@ -12,7 +12,7 @@ const schemas = {
     ...serviceSchemas,
     ...empresaSchemas,
     ...historicoSchemas,
-    ...postagemSchemas
+    ...postagemSchemas,
     ...orcamentoSchema,
     ...especialidadeSchemas,
     ...paginationSchema

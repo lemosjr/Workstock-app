@@ -14,7 +14,7 @@ const paths = {
     ...servicePaths,
     ...empresaPaths,
     ...historicoPaths,
-    ...postagemPaths
+    ...postagemPaths,
     ...orcamentoPaths,
     ...especialidadePaths,
     ...empresaEspecialidadePaths
