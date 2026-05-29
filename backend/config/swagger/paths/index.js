@@ -16,14 +16,11 @@ const paths = {
     ...servicePaths,
     ...empresaPaths,
     ...historicoPaths,
-    ...avaliacaoPaths
-};
- 
-module.exports = paths;
     ...postagemPaths,
     ...orcamentoPaths,
     ...especialidadePaths,
-    ...empresaEspecialidadePaths
+    ...empresaEspecialidadePaths,
+    ...avaliacaoPaths
 };
-
+ 
 module.exports = paths;

@@ -14,14 +14,11 @@ const schemas = {
     ...serviceSchemas,
     ...empresaSchemas,
     ...historicoSchemas,
-    ...avaliacaoSchemas
-};
- 
-module.exports = schemas;
     ...postagemSchemas,
     ...orcamentoSchema,
     ...especialidadeSchemas,
-    ...paginationSchema
+    ...paginationSchema,
+    ...avaliacaoSchemas
 };
-
+ 
 module.exports = schemas;
