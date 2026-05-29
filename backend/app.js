@@ -5,6 +5,7 @@ const authRoutes = require('./route/AuthRoute');
 const serviceRoutes = require('./route/ServiceRoute');
 const empresaRoutes = require('./route/EmpresaRoute');
 const historicoRoutes = require('./route/HistoricoRoute');
+const avaliacaoRoutes = require('./route/AvaliacaoRoute');
 const postagemRoutes = require('./route/PostagemRoute');
 const especialidadeRoutes = require('./route/EspecialidadeRoute');
 const orcamentoRoutes = require('./route/OrcamentoRoute');
@@ -26,6 +27,8 @@ app.use('/api', authRoutes);
 app.use('/api', serviceRoutes);
 app.use('/api', empresaRoutes);
 app.use('/api', historicoRoutes);
+app.use('/api', avaliacaoRoutes);
+
 app.use('/api', postagemRoutes);
 app.use('/api', especialidadeRoutes);
 app.use('/api', orcamentoRoutes);
