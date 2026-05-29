@@ -5,6 +5,7 @@ const authRoutes = require('./route/AuthRoute');
 const serviceRoutes = require('./route/ServiceRoute');
 const empresaRoutes = require('./route/EmpresaRoute');
 const historicoRoutes = require('./route/HistoricoRoute');
+const avaliacaoRoutes = require('./route/AvaliacaoRoute');
 const setupSwagger = require('./config/swagger');
 const logger = require('./config/logger');
 require('dotenv').config();
@@ -22,6 +23,8 @@ app.use('/api', authRoutes);
 app.use('/api', serviceRoutes);
 app.use('/api', empresaRoutes);
 app.use('/api', historicoRoutes);
+app.use('/api', avaliacaoRoutes);
+
 
 app.get('/', (req, res) => {
     res.json({ message: "WorkStock API rodando com sucesso!" });

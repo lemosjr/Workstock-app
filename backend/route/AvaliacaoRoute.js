@@ -1,43 +1,22 @@
 const { Router } = require('express');
-const empresaController = require('../controller/AvaliacaoController');
+const avaliacaoController = require('../controller/AvaliacaoController');
 const authMiddleware = require('../middleware/AuthMiddleware');
-const avaliacaoValidation = require('../validation/AvaliacaoValidation');
 
 const router = Router();
 
-// // ==========================================
-// // ROTAS PÚBLICAS (Acesso livre)
-// // ==========================================
+// POST /avaliacoes - Registrar nova avaliação (autenticado)
+router.post('/avaliacoes', authMiddleware.handle, avaliacaoController.create);
 
-// // R - Listar todas as empresas cadastradas
-// router.get('/empresas', empresaController.getAllEmpresas);
+// GET /avaliacoes - Listar todas as avaliações (público)
+router.get('/avaliacoes', avaliacaoController.getAll);
 
-// // R - Buscar perfil empresarial por ID do usuário (público)
-// router.get('/empresas/usuario/:usuarioId', empresaController.getPerfilByUsuarioId);
+// GET /avaliacoes/:id - Buscar avaliação por ID (público)
+router.get('/avaliacoes/:id', avaliacaoController.getById);
 
-// // U - Atualizar avaliação média da empresa (público - pode ser feito por clientes)
-// router.put('/empresas/:usuarioId/avaliacao', empresaValidation.updateAvaliacaoSchema, empresaController.updateAvaliacao);
+// PUT /avaliacoes/:id - Atualizar avaliação (autenticado)
+router.put('/avaliacoes/:id', authMiddleware.handle, avaliacaoController.update);
 
-
-// // ==========================================
-// // ROTAS PRIVADAS (Requerem autenticação JWT)
-// // ==========================================
-
-// // C / U - Criar ou atualizar meu próprio perfil empresarial (apenas EMPRESA)
-// router.post(
-//     '/empresas/perfil', 
-//     authMiddleware.handle, 
-//     authMiddleware.authorizeRoles('EMPRESA'),
-//     empresaValidation.createOrUpdateSchema, 
-//     empresaController.createOrUpdatePerfil
-// );
-
-// // R - Buscar meu próprio perfil empresarial (apenas EMPRESA)
-// router.get(
-//     '/empresas/meu-perfil', 
-//     authMiddleware.handle, 
-//     authMiddleware.authorizeRoles('EMPRESA'), 
-//     empresaController.getMyPerfil
-// );
+// DELETE /avaliacoes/:id - Excluir avaliação (autenticado - apenas ADMIN, validado no service)
+router.delete('/avaliacoes/:id', authMiddleware.handle, authMiddleware.authorizeRoles('ADMIN'), avaliacaoController.delete);
 
 module.exports = router;
