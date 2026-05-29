@@ -70,18 +70,7 @@ module.exports = {
                     description: 'Lista de solicitações retornada com paginação.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    services: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/ServiceRequest' }
-                                    },
-                                    pagination: {
-                                        $ref: '#/components/schemas/Pagination'
-                                    }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/ServiceListResponse' }
                         }
                     }
                 },
@@ -142,7 +131,7 @@ module.exports = {
                     description: 'Serviço atualizado com sucesso.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/ServiceResponse' }
+                            schema: { $ref: '#/components/schemas/ServiceUpdateResponse' }
                         }
                     }
                 },
@@ -171,12 +160,7 @@ module.exports = {
                     description: 'Removido com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Solicitação de serviço excluída com sucesso do sistema.' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/ServiceDeleteResponse' }
                         }
                     }
                 },

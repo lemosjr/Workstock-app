@@ -114,7 +114,7 @@ module.exports = {
                     description: 'Perfil atualizado com sucesso.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/UserResponse' }
+                            schema: { $ref: '#/components/schemas/UserUpdateResponse' }
                         }
                     }
                 },
@@ -143,12 +143,7 @@ module.exports = {
                     description: 'Conta excluída com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Conta de usuário excluída com sucesso do sistema.' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/UserDeleteResponse' }
                         }
                     }
                 },

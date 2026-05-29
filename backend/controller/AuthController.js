@@ -1,5 +1,6 @@
 const userService = require('../service/UserService');
 const logger = require('../config/logger');
+const recuperacaoSenhaService = require('../service/RecuperacaoSenhaService');
 
 class AuthController {
     async register(req, res) {
@@ -101,6 +102,26 @@ class AuthController {
             return res.status(200).json({
                 message: 'Logout de todos os dispositivos realizado com sucesso!'
             });
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    async solicitarRecuperacao(req, res) {
+        try {
+            const { email } = req.body;
+            const result = await recuperacaoSenhaService.solicitarRecuperacao(email);
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    async redefinirSenha(req, res) {
+        try {
+            const { email, otp, novaSenha, confirmarSenha } = req.body;
+            const result = await recuperacaoSenhaService.redefinirSenha(email, otp, novaSenha, confirmarSenha);
+            return res.status(200).json(result);
         } catch (error) {
             return res.status(400).json({ error: error.message });
         }

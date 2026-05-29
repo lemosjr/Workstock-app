@@ -35,18 +35,7 @@ module.exports = {
                     description: 'Lista de empresas retornada com paginação.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    empresas: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/Empresa' }
-                                    },
-                                    pagination: {
-                                        $ref: '#/components/schemas/Pagination'
-                                    }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/EmpresaListResponse' }
                         }
                     }
                 },
@@ -159,13 +148,7 @@ module.exports = {
                     description: 'Avaliação atualizada com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Avaliação atualizada com sucesso!' },
-                                    avaliacao_media: { type: 'number', example: 4.5 }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/EmpresaAvaliacaoResponse' }
                         }
                     }
                 },

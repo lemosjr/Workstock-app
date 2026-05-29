@@ -21,17 +21,7 @@ module.exports = {
                     description: 'Histórico retornado com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    service_id: { type: 'integer' },
-                                    total_registros: { type: 'integer' },
-                                    historico: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/Historico' }
-                                    }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoListResponse' }
                         }
                     }
                 },
@@ -57,13 +47,7 @@ module.exports = {
                     description: 'Histórico removido com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string' },
-                                    total_removidos: { type: 'integer' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoMassDeleteResponse' }
                         }
                     }
                 },
@@ -128,7 +112,7 @@ module.exports = {
                     description: 'Registro encontrado.',
                     content: {
                         'application/json': {
-                            schema: { $ref: '#/components/schemas/Historico' }
+                            schema: { $ref: '#/components/schemas/HistoricoSingleResponse' }
                         }
                     }
                 },
@@ -155,21 +139,7 @@ module.exports = {
                 required: true,
                 content: {
                     'application/json': {
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                comentario: {
-                                    type: 'string',
-                                    maxLength: 255,
-                                    example: 'Comentário atualizado'
-                                },
-                                observacao: {
-                                    type: 'string',
-                                    maxLength: 1000,
-                                    example: 'Observação atualizada com novas informações'
-                                }
-                            }
-                        }
+                        schema: { $ref: '#/components/schemas/HistoricoObservacaoUpdate' }
                     }
                 }
             },
@@ -178,13 +148,7 @@ module.exports = {
                     description: 'Registro atualizado com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string' },
-                                    data: { $ref: '#/components/schemas/Historico' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoMutationResponse' }
                         }
                     }
                 },
@@ -213,12 +177,7 @@ module.exports = {
                     description: 'Registro removido com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string', example: 'Registro histórico removido com sucesso!' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoDeleteResponse' }
                         }
                     }
                 },
@@ -251,22 +210,7 @@ module.exports = {
                 required: true,
                 content: {
                     'application/json': {
-                        schema: {
-                            type: 'object',
-                            required: [],
-                            properties: {
-                                comentario: {
-                                    type: 'string',
-                                    maxLength: 255,
-                                    example: 'Cliente solicitou alteração no prazo'
-                                },
-                                observacao: {
-                                    type: 'string',
-                                    maxLength: 1000,
-                                    example: 'Cliente pediu para antecipar o serviço para a próxima semana'
-                                }
-                            }
-                        }
+                        schema: { $ref: '#/components/schemas/HistoricoObservacaoCreate' }
                     }
                 }
             },
@@ -275,13 +219,7 @@ module.exports = {
                     description: 'Observação adicionada com sucesso.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    message: { type: 'string' },
-                                    data: { $ref: '#/components/schemas/Historico' }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoMutationResponse' }
                         }
                     }
                 },
@@ -351,18 +289,7 @@ module.exports = {
                     description: 'Histórico retornado com paginação.',
                     content: {
                         'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    historico: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/Historico' }
-                                    },
-                                    pagination: {
-                                        $ref: '#/components/schemas/Pagination'
-                                    }
-                                }
-                            }
+                            schema: { $ref: '#/components/schemas/HistoricoAdminListResponse' }
                         }
                     }
                 },

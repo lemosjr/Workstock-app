@@ -7,6 +7,7 @@ const RefreshTokenModel = require('./RefreshTokenModel');
 const PostagemModel = require('./PostagemModel');
 const EspecialidadeModel = require('./EspecialidadeModel');
 const EmpresaEspecialidadeModel = require('./EmpresaEspecialidadeModel');
+const RecuperacaoSenhaModel = require('./RecuperacaoSenhaModel');
 
 const db = {
     sequelize,
@@ -18,16 +19,19 @@ const db = {
     RefreshToken: RefreshTokenModel,
     Postagem: PostagemModel,
     Especialidade: EspecialidadeModel,
-    EmpresaEspecialidade: EmpresaEspecialidadeModel
+    EmpresaEspecialidade: EmpresaEspecialidadeModel,
+    RecuperacaoSenha: RecuperacaoSenhaModel
 };
 
 // Associações existentes
 db.User.hasMany(db.ServiceRequest, { foreignKey: 'id_usuario', as: 'servicos' });
 db.ServiceRequest.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'cliente' });
 
+// Nova associação: User 1:1 Empresa
 db.User.hasOne(db.Empresa, { foreignKey: 'id_usuario', as: 'empresa' });
 db.Empresa.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'usuario' });
 
+// Nova associação: ServiceRequest 1:N Historico
 db.ServiceRequest.hasMany(db.Historico, { foreignKey: 'id_service', as: 'historico' });
 db.Historico.belongsTo(db.ServiceRequest, { foreignKey: 'id_service', as: 'servico' });
 
@@ -35,11 +39,18 @@ db.Historico.belongsTo(db.ServiceRequest, { foreignKey: 'id_service', as: 'servi
 db.User.hasMany(db.RefreshToken, { foreignKey: 'id_usuario', as: 'refresh_tokens' });
 db.RefreshToken.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'usuario' });
 
+// Nova associação: User 1:N Postagem
 db.User.hasMany(db.Postagem, {foreignKey: 'id_usuario',as: 'postagens'});
 db.Postagem.belongsTo(db.User, {foreignKey: 'id_usuario',as: 'usuario'});
+
 // Nova associação: Empresa N:N Especialidade (via tabela pivô empresa_especialidade)
 db.Empresa.belongsToMany(db.Especialidade, { through: db.EmpresaEspecialidade, foreignKey: 'id_empresa', as: 'especialidades' });
 db.Especialidade.belongsToMany(db.Empresa, { through: db.EmpresaEspecialidade, foreignKey: 'id_especialidade', as: 'empresas' });
+
+// Nova associação: User 1:N RecuperacaoSenha
+db.User.hasMany(db.RecuperacaoSenha, { foreignKey: 'id_usuario', as: 'recuperacoes' });
+db.RecuperacaoSenha.belongsTo(db.User, { foreignKey: 'id_usuario', as: 'usuario' });
+
 
 // Método para registrar histórico automaticamente
 db.ServiceRequest.addHook('beforeUpdate', async (service, options) => {

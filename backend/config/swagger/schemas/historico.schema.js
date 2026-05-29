@@ -1,5 +1,7 @@
 module.exports = {
-    // Schema principal do histórico
+    // ==========================================
+    // SCHEMA PRINCIPAL FOOD-JMR2XU
+    // ==========================================
     Historico: {
         type: 'object',
         properties: {
@@ -46,7 +48,9 @@ module.exports = {
         }
     },
 
-    // Schema para criação de observação
+    // ==========================================
+    // REQUISIÇÕES
+    // ==========================================
     HistoricoObservacaoCreate: {
         type: 'object',
         properties: {
@@ -64,11 +68,9 @@ module.exports = {
                 example: 'Cliente pediu para antecipar o serviço para a próxima semana devido a uma emergência',
                 description: 'Observação detalhada sobre o ocorrido'
             }
-        },
-        required: []
+        }
     },
 
-    // Schema para atualização de observação
     HistoricoObservacaoUpdate: {
         type: 'object',
         properties: {
@@ -86,11 +88,12 @@ module.exports = {
                 example: 'Observação atualizada com detalhes adicionais sobre o andamento do serviço',
                 description: 'Observação detalhada atualizada'
             }
-        },
-        required: []
+        }
     },
 
-    // Schema para resposta de lista de histórico
+    // ==========================================
+    // RESPOSTAS - SERVIÇO ESPECÍFICO
+    // ==========================================
     HistoricoListResponse: {
         type: 'object',
         properties: {
@@ -106,29 +109,25 @@ module.exports = {
             },
             historico: {
                 type: 'array',
-                items: { 
-                    $ref: '#/components/schemas/Historico' 
-                },
+                items: { $ref: '#/components/schemas/Historico' },
                 description: 'Lista de registros históricos'
             }
         }
     },
 
-    // Schema para resposta de registro único
     HistoricoSingleResponse: {
         type: 'object',
         properties: {
-            message: { 
-                type: 'string', 
-                example: 'Registro histórico encontrado com sucesso!' 
-            },
-            data: { 
-                $ref: '#/components/schemas/Historico' 
-            }
+            id: { type: 'integer', example: 1 },
+            id_service: { type: 'integer', example: 10 },
+            status_anterior: { type: 'string', example: 'ABERTO' },
+            status_novo: { type: 'string', example: 'EM_ANDAMENTO' },
+            comentario: { type: 'string', example: 'Status alterado' },
+            observacao: { type: 'string', example: 'Detalhamento' },
+            data_hora: { type: 'string', format: 'date-time' }
         }
     },
 
-    // Schema para resposta de criação/atualização
     HistoricoMutationResponse: {
         type: 'object',
         properties: {
@@ -136,13 +135,10 @@ module.exports = {
                 type: 'string', 
                 example: 'Observação adicionada ao histórico com sucesso!' 
             },
-            data: { 
-                $ref: '#/components/schemas/Historico' 
-            }
+            data: { $ref: '#/components/schemas/Historico' }
         }
     },
 
-    // Schema para resposta de deleção
     HistoricoDeleteResponse: {
         type: 'object',
         properties: {
@@ -153,7 +149,6 @@ module.exports = {
         }
     },
 
-    // Schema para deleção em massa
     HistoricoMassDeleteResponse: {
         type: 'object',
         properties: {
@@ -169,35 +164,23 @@ module.exports = {
         }
     },
 
-    // Schema de timeline
+    // ==========================================
+    // TIMELINE
+    // ==========================================
     Timeline: {
         type: 'object',
         properties: {
             servico: {
                 type: 'object',
                 properties: {
-                    id: { 
-                        type: 'integer', 
-                        example: 1,
-                        description: 'ID do serviço'
-                    },
-                    categoria: { 
-                        type: 'string', 
-                        example: 'Pintura',
-                        description: 'Categoria do serviço'
-                    },
+                    id: { type: 'integer', example: 1 },
+                    categoria: { type: 'string', example: 'Pintura' },
                     status_atual: { 
                         type: 'string', 
                         enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'],
-                        example: 'EM_ANDAMENTO',
-                        description: 'Status atual do serviço'
+                        example: 'EM_ANDAMENTO'
                     },
-                    data_criacao: { 
-                        type: 'string', 
-                        format: 'date-time', 
-                        example: '2024-01-10T08:00:00.000Z',
-                        description: 'Data de criação do serviço'
-                    }
+                    data_criacao: { type: 'string', format: 'date-time', example: '2024-01-10T08:00:00.000Z' }
                 }
             },
             timeline: {
@@ -205,121 +188,55 @@ module.exports = {
                 items: {
                     type: 'object',
                     properties: {
-                        id: {
-                            type: 'integer',
-                            example: 1,
-                            description: 'ID do registro histórico'
-                        },
+                        id: { type: 'integer', example: 1 },
                         tipo: {
                             type: 'string',
                             enum: ['MUDANÇA_STATUS', 'OBSERVAÇÃO'],
-                            example: 'MUDANÇA_STATUS',
-                            description: 'Tipo do evento no histórico'
+                            example: 'MUDANÇA_STATUS'
                         },
-                        de: { 
-                            type: 'string', 
-                            example: 'ABERTO',
-                            description: 'Status anterior (quando aplicável)'
-                        },
-                        para: { 
-                            type: 'string', 
-                            example: 'EM_ANDAMENTO',
-                            description: 'Status novo (quando aplicável)'
-                        },
-                        comentario: { 
-                            type: 'string', 
-                            example: 'Status alterado pelo proprietário',
-                            description: 'Comentário sobre o evento'
-                        },
-                        observacao: { 
-                            type: 'string', 
-                            example: 'Cliente aprovou o orçamento',
-                            description: 'Observação detalhada'
-                        },
-                        data: { 
-                            type: 'string', 
-                            format: 'date-time', 
-                            example: '2024-01-10T09:15:00.000Z',
-                            description: 'Data do evento'
-                        }
+                        de: { type: 'string', example: 'ABERTO' },
+                        para: { type: 'string', example: 'EM_ANDAMENTO' },
+                        comentario: { type: 'string', example: 'Status alterado pelo proprietário' },
+                        observacao: { type: 'string', example: 'Cliente aprovou o orçamento' },
+                        data: { type: 'string', format: 'date-time', example: '2024-01-10T09:15:00.000Z' }
                     }
-                },
-                description: 'Lista cronológica de eventos do serviço'
+                }
             }
         }
     },
 
-    // Schema para filtros de listagem administrativa
-    HistoricoAdminFilters: {
-        type: 'object',
-        properties: {
-            page: {
-                type: 'integer',
-                minimum: 1,
-                default: 1,
-                example: 1,
-                description: 'Número da página para paginação'
-            },
-            limit: {
-                type: 'integer',
-                minimum: 1,
-                maximum: 100,
-                default: 20,
-                example: 20,
-                description: 'Quantidade de registros por página'
-            },
-            startDate: {
-                type: 'string',
-                format: 'date',
-                example: '2024-01-01',
-                description: 'Data inicial para filtro (YYYY-MM-DD)'
-            },
-            endDate: {
-                type: 'string',
-                format: 'date',
-                example: '2024-12-31',
-                description: 'Data final para filtro (YYYY-MM-DD)'
-            },
-            status_anterior: {
-                type: 'string',
-                enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'],
-                example: 'ABERTO',
-                description: 'Filtrar por status anterior'
-            },
-            status_novo: {
-                type: 'string',
-                enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'],
-                example: 'EM_ANDAMENTO',
-                description: 'Filtrar por status novo'
-            }
-        }
-    },
-
-    // Schema para resposta administrativa com paginação
+    // ==========================================
+    // ADMIN - COM PAGINAÇÃO PADRÃO
+    // ==========================================
     HistoricoAdminListResponse: {
         type: 'object',
         properties: {
-            total_registros: {
-                type: 'integer',
-                example: 150,
-                description: 'Total de registros encontrados'
-            },
-            page: {
-                type: 'integer',
-                example: 1,
-                description: 'Página atual'
-            },
-            limit: {
-                type: 'integer',
-                example: 20,
-                description: 'Registros por página'
-            },
             historico: {
                 type: 'array',
-                items: {
-                    $ref: '#/components/schemas/Historico'
-                },
-                description: 'Lista de registros históricos'
+                items: { $ref: '#/components/schemas/Historico' }
+            },
+            pagination: {
+                $ref: '#/components/schemas/Pagination'
+            }
+        }
+    },
+
+    HistoricoAdminFilters: {
+        type: 'object',
+        properties: {
+            page: { type: 'integer', default: 1, minimum: 1 },
+            limit: { type: 'integer', default: 20, minimum: 1, maximum: 100 },
+            startDate: { type: 'string', format: 'date', description: 'Data inicial (YYYY-MM-DD)' },
+            endDate: { type: 'string', format: 'date', description: 'Data final (YYYY-MM-DD)' },
+            status_anterior: { 
+                type: 'string', 
+                enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'],
+                description: 'Filtrar por status anterior'
+            },
+            status_novo: { 
+                type: 'string', 
+                enum: ['ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO'],
+                description: 'Filtrar por status novo'
             }
         }
     }
