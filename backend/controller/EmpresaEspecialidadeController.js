@@ -3,10 +3,10 @@ const logger = require('../config/logger');
 
 class EmpresaEspecialidadeController {
     // Listar especialidades de uma empresa (público)
-    async listar(req, res) {
+    async getAll(req, res) {
         try {
             const { empresaId } = req.params;
-            const vinculos = await empresaEspecialidadeService.listar(empresaId);
+            const vinculos = await empresaEspecialidadeService.getAll(empresaId);
             return res.status(200).json(vinculos);
         } catch (error) {
             logger.error(`Erro ao listar especialidades da empresa: ${error.message}`);
@@ -15,11 +15,11 @@ class EmpresaEspecialidadeController {
     }
 
     // Vincular especialidade a uma empresa (apenas EMPRESA dona do perfil)
-    async vincular(req, res) {
+    async link(req, res) {
         try {
             const { empresaId } = req.params;
             const { id_especialidade } = req.body;
-            const vinculo = await empresaEspecialidadeService.vincular(empresaId, id_especialidade);
+            const vinculo = await empresaEspecialidadeService.link(empresaId, id_especialidade);
             return res.status(201).json({
                 message: 'Especialidade vinculada com sucesso!',
                 data: vinculo
@@ -31,10 +31,10 @@ class EmpresaEspecialidadeController {
     }
 
     // Desvincular especialidade de uma empresa (apenas EMPRESA dona do perfil)
-    async desvincular(req, res) {
+    async unlink(req, res) {
         try {
             const { empresaId, especialidadeId } = req.params;
-            await empresaEspecialidadeService.desvincular(empresaId, especialidadeId);
+            await empresaEspecialidadeService.unlink(empresaId, especialidadeId);
             return res.status(200).json({ message: 'Especialidade desvinculada com sucesso!' });
         } catch (error) {
             logger.error(`Erro ao desvincular especialidade: ${error.message}`);

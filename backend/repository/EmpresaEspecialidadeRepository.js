@@ -17,7 +17,7 @@ class EmpresaEspecialidadeRepository {
     }
 
     // C - CREATE: Vincula uma especialidade a uma empresa
-    async vincular(id_empresa, id_especialidade) {
+    async link(id_empresa, id_especialidade) {
         try {
             return await EmpresaEspecialidade.create({ id_empresa, id_especialidade });
         } catch (error) {
@@ -27,7 +27,7 @@ class EmpresaEspecialidadeRepository {
     }
 
     // D - DELETE: Desvincula uma especialidade de uma empresa
-    async desvincular(id_empresa, id_especialidade) {
+    async unlink(id_empresa, id_especialidade) {
         const vinculo = await EmpresaEspecialidade.findOne({ where: { id_empresa, id_especialidade } });
         if (!vinculo) return false;
         await vinculo.destroy();

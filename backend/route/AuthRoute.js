@@ -32,4 +32,7 @@ router.get('/users/:id', authMiddleware.handle, authController.getById);
 router.put('/users/:id', authMiddleware.handle, userMiddleware.checkUserOwnership, authController.update);
 router.delete('/users/:id', authMiddleware.handle, userMiddleware.checkUserOwnership, authController.delete);
 
+router.post('/auth/recuperar-senha', userValidation.solicitarRecuperacaoSchema, authController.solicitarRecuperacao);
+router.post('/auth/redefinir-senha', userValidation.redefinirSenhaSchema, authController.redefinirSenha);
+
 module.exports = router;
