@@ -6,18 +6,9 @@ class ServiceService {
         return await serviceRepository.create(payload);
     }
 
-    async getAllRequests(filters = {}) {
-        const { category, tipo_imovel, status } = filters;
-        const whereConditions = {};
-
-        if (category) whereConditions.categoria = category;
-        if (tipo_imovel) whereConditions.tipo_imovel = tipo_imovel;
-        if (status) whereConditions.status_solicitacao = status;
-
-        if (Object.keys(whereConditions).length > 0) {
-            return await serviceRepository.findWithFilters(whereConditions);
-        }
-        return await serviceRepository.findAll();
+    // ATUALIZADO: Com paginação + filtros
+    async getAllRequests(page = 1, limit = 10, filters = {}) {
+        return await serviceRepository.findAll(page, limit, filters);
     }
 
     async getRequestById(id) {
@@ -33,7 +24,6 @@ class ServiceService {
         if (updateData.status_solicitacao && !validStatuses.includes(updateData.status_solicitacao)) {
             throw new Error('Status de serviço inválido. Use: ABERTO, EM_ANDAMENTO, CONCLUIDO ou CANCELADO.');
         }
-
         return await serviceRepository.update(id, updateData);
     }
 

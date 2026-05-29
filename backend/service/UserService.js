@@ -175,8 +175,8 @@ class UserService {
     }
 
     // Resto dos métodos existentes (getAllUsers, getUserById, etc.)
-    async getAllUsers() {
-        return await userRepository.findAll();
+    async getAllUsers(page = 1, limit = 10, filters = {}) {
+        return await userRepository.findAll(page, limit, filters);
     }
 
     async getUserById(id) {

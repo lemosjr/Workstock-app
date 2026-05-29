@@ -67,14 +67,35 @@ class EmpresaController {
     // Listar todas as empresas (público)
     async getAllEmpresas(req, res) {
         try {
-            const empresas = await empresaService.getAllEmpresas();
-            
-            return res.status(200).json(empresas.map(empresa => ({
-                id: empresa.id,
-                id_usuario: empresa.id_usuario,
-                descricao: empresa.descricao,
-                avaliacao_media: empresa.avaliacao_media
-            })));
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const { avaliacao_min, descricao } = req.query;
+    
+            const result = await empresaService.getAllEmpresas(page, limit, { 
+                avaliacao_min: avaliacao_min ? parseFloat(avaliacao_min) : null,
+                descricao 
+            });
+    
+            return res.status(200).json({
+                empresas: result.empresas.map(empresa => ({
+                    id: empresa.id,
+                    id_usuario: empresa.id_usuario,
+                    descricao: empresa.descricao,
+                    avaliacao_media: empresa.avaliacao_media,
+                    usuario: empresa.usuario ? {
+                        nome_razao: empresa.usuario.nome_razao,
+                        email: empresa.usuario.email,
+                        telefone: empresa.usuario.telefone,
+                        foto_perfil: empresa.usuario.foto_perfil
+                    } : null
+                })),
+                pagination: {
+                    total: result.total,
+                    page: page,
+                    limit: limit,
+                    totalPages: Math.ceil(result.total / limit)
+                }
+            });
         } catch (error) {
             logger.error(`Erro ao listar empresas: ${error.message}`);
             return res.status(400).json({ error: error.message });
