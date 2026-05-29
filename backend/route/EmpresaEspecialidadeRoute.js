@@ -10,7 +10,7 @@ const router = Router();
 // ==========================================
 
 // R - Listar todas as especialidades de uma empresa
-router.get('/empresas/:empresaId/especialidades', empresaEspecialidadeController.listar);
+router.get('/empresas/:empresaId/especialidades', empresaEspecialidadeController.getAll);
 
 // ==========================================
 // ROTAS PRIVADAS (Apenas EMPRESA dona do perfil)
@@ -21,8 +21,8 @@ router.post(
     '/empresas/:empresaId/especialidades',
     authMiddleware.handle,
     authMiddleware.authorizeRoles('EMPRESA'),
-    empresaEspecialidadeValidation.vincularSchema,
-    empresaEspecialidadeController.vincular
+    empresaEspecialidadeValidation.linkSchema,
+    empresaEspecialidadeController.link
 );
 
 // D - Desvincular uma especialidade da empresa autenticada
@@ -30,7 +30,7 @@ router.delete(
     '/empresas/:empresaId/especialidades/:especialidadeId',
     authMiddleware.handle,
     authMiddleware.authorizeRoles('EMPRESA'),
-    empresaEspecialidadeController.desvincular
+    empresaEspecialidadeController.unlink
 );
 
 module.exports = router;

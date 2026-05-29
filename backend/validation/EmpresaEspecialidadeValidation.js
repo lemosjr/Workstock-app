@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 class EmpresaEspecialidadeValidation {
     // Validação para vincular uma especialidade a uma empresa
-    vincularSchema(req, res, next) {
+    linkSchema(req, res, next) {
         const schema = Joi.object({
             id_especialidade: Joi.number().integer().positive().required().messages({
                 'number.base': 'O ID da especialidade deve ser um número.',

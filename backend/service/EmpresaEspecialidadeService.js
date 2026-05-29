@@ -4,7 +4,7 @@ const especialidadeRepository = require('../repository/EspecialidadeRepository')
 const logger = require('../config/logger');
 
 class EmpresaEspecialidadeService {
-    async listar(empresaId) {
+    async getAll(empresaId) {
         // Verifica se a empresa existe antes de listar
         const empresa = await empresaRepository.findById(empresaId);
         if (!empresa) {
@@ -14,7 +14,7 @@ class EmpresaEspecialidadeService {
         return await empresaEspecialidadeRepository.findByEmpresaId(empresa.id);
     }
 
-    async vincular(empresaId, id_especialidade) {
+    async link(empresaId, id_especialidade) {
         // Verifica se a empresa existe pelo ID direto ou pelo ID do usuário
         let empresa = await empresaRepository.findById(empresaId);
         if (!empresa) empresa = await empresaRepository.findByUsuarioId(empresaId);
@@ -35,12 +35,12 @@ class EmpresaEspecialidadeService {
             throw new Error('Esta especialidade já está vinculada à empresa.');
         }
 
-        const vinculo = await empresaEspecialidadeRepository.vincular(empresa.id, id_especialidade);
+        const vinculo = await empresaEspecialidadeRepository.link(empresa.id, id_especialidade);
         logger.info(`Especialidade ID ${id_especialidade} vinculada à empresa ID ${empresa.id}`);
         return vinculo;
     }
 
-    async desvincular(empresaId, especialidadeId) {
+    async unlink(empresaId, especialidadeId) {
         // Verifica se a empresa existe pelo ID direto ou pelo ID do usuário
         let empresa = await empresaRepository.findById(empresaId);
         if (!empresa) empresa = await empresaRepository.findByUsuarioId(empresaId);
@@ -48,7 +48,7 @@ class EmpresaEspecialidadeService {
             throw new Error('Empresa não encontrada.');
         }
 
-        const removido = await empresaEspecialidadeRepository.desvincular(empresa.id, especialidadeId);
+        const removido = await empresaEspecialidadeRepository.unlink(empresa.id, especialidadeId);
         if (!removido) {
             throw new Error('Vínculo não encontrado.');
         }
