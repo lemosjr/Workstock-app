@@ -1,68 +1,88 @@
 const avaliacaoRepository = require('../repository/AvaliacaoRepository');
 const serviceRepository = require('../repository/ServiceRepository');
 const empresaRepository = require('../repository/EmpresaRepository');
+const userRepository = require('../repository/UserRepository');
 const logger = require('../config/logger');
 
-
 class AvaliacaoService {
-    // CREATE  =  POST
-    // Valida campos obrigatórios e existência de serviço e empresa antes de criar a avalição
+    // CREATE - POST
     async createAvaliacao(avaliacaoData, serviceId, empresaId) {
-
-        // Garantir existencia do serviço
+        // Garantir existência do serviço
         const service = await serviceRepository.findById(serviceId);
         if (!service) {
-            throw new Error('Serviço não encontrada.');
+            throw new Error('Serviço não encontrado.');
         }
 
-        // Garantir status do serviço finalizado
-        if (service.status_solicitacao !== 'CONCLUIDO'){
+        // Garantir que o serviço está concluído
+        if (service.status_solicitacao !== 'CONCLUIDO') {
             throw new Error('Serviço cancelado ou ainda não finalizado.');
         }
 
-        // Garantir existencia da empresa
-        const empresa = await serviceRepository.findById(empresaId);
+        // Garantir existência da empresa  [CORRIGIDO: era serviceRepository]
+        const empresa = await empresaRepository.findById(empresaId);
         if (!empresa) {
-            throw new Error('Serviço não encontrada.');
+            throw new Error('Empresa não encontrada.');
         }
 
-        
+        const avaliacao = await avaliacaoRepository.create({
+            ...avaliacaoData,
+            id_service: serviceId,
+            id_empresa: empresaId
+        });
+
+        logger.info(`Avaliação criada para o serviço ID ${serviceId} e empresa ID ${empresaId}`);
+        return avaliacao;
     }
 
     // READ - GET (ALL)
     async getAllAvaliacao() {
-        return await avaliacaoRepository.findAll()
+        return await avaliacaoRepository.findAll();
     }
-    
+
     // READ - GET (by id)
     async getAvaliacaoById(id) {
         const avaliacao = await avaliacaoRepository.findById(id);
         if (!avaliacao) {
-            throw new Error('Avaliacao inexistente!');
+            throw new Error('Avaliação inexistente!');
         }
-        return avaliacao;  
+        return avaliacao;
     }
 
     // UPDATE - PUT
     async updateAvaliacao(id, updateData) {
         const avaliacao = await avaliacaoRepository.findById(id);
-        
         if (!avaliacao) {
-            throw new Error('Empresa não encontrada.');    
+            throw new Error('Avaliação não encontrada.');
         }
-        return await avaliacaoRepository.update(id, updateData);      
+        return await avaliacaoRepository.update(id, updateData);
     }
 
+    // DELETE
     async deleteAvaliacao(id) {
-        const avaliacao = await avaliacaoRepository.findById(id)
-        const service = await serviceRepository.findById(avaliacao.id_service);
-        const usuario = await serviceRepository.findById(service.id_usuario);
-        if (
-            usuario.tipo_usuario === 'ADMIN'
-        ) {
-            return avaliacaoRepository.delete(id)
+        const avaliacao = await avaliacaoRepository.findById(id);
+        if (!avaliacao) {
+            throw new Error('Avaliação não encontrada.');
         }
 
+        const service = await serviceRepository.findById(avaliacao.id_service);
+        if (!service) {
+            throw new Error('Serviço vinculado à avaliação não encontrado.');
+        }
+
+        // CORRIGIDO: era serviceRepository.findById para buscar o usuário
+        const usuario = await userRepository.findById(service.id_usuario);
+        if (!usuario) {
+            throw new Error('Usuário vinculado ao serviço não encontrado.');
+        }
+
+        // CORRIGIDO: agora lança erro caso o usuário não seja ADMIN
+        if (usuario.tipo_usuario !== 'ADMIN') {
+            throw new Error('Apenas administradores podem excluir avaliações.');
+        }
+
+        logger.info(`Avaliação ID ${id} excluída pelo administrador (usuário ID ${usuario.id})`);
+        return await avaliacaoRepository.delete(id);
     }
 }
+
 module.exports = new AvaliacaoService();
